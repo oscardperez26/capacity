@@ -68,9 +68,9 @@ function createSqlServerPool() {
     user: DB.user,
     password: DB.password,
     pool: {
-      min: 2,
+      min: 0,
       max: DB.poolMax,
-      idleTimeoutMillis: 25000,
+      idleTimeoutMillis: 8000,
       acquireTimeoutMillis: 15000,
       createTimeoutMillis: 15000,
       destroyTimeoutMillis: 5000,
@@ -297,8 +297,25 @@ function isRetryableError(err) {
     msg.includes('connection reset') ||
     msg.includes('socket closed') ||
     msg.includes('connection is closed') ||
-    msg.includes('econnreset')
+    msg.includes('econnreset') ||
+    msg === 'aborted'  // tarn abort when pool closes while acquire is pending
   )
+}
+
+// Solo un reset concurrente a la vez — el resto comparte la misma promesa.
+// Evita que múltiples requests simultáneos cierren el pool en paralelo
+// (pool.close() aborta los acquires pendientes de tarn, generando más errores).
+let poolResetInFlight = null
+function triggerPoolReset() {
+  if (poolResetInFlight) return poolResetInFlight
+  poolResetInFlight = (async () => {
+    if (sqlPool) {
+      try { await sqlPool.close() } catch {}
+      sqlPool = null
+      sqlPoolPromise = null
+    }
+  })().finally(() => { poolResetInFlight = null })
+  return poolResetInFlight
 }
 
 async function withQueryRetry(fn, maxAttempts = 3) {
@@ -308,15 +325,16 @@ async function withQueryRetry(fn, maxAttempts = 3) {
       return await fn()
     } catch (err) {
       lastErr = err
-      if (!isRetryableError(err) || attempt === maxAttempts) throw err
-      const delay = 200 * attempt
-      console.warn(`[DB] ECONNRESET intento ${attempt}/${maxAttempts} — reintentando en ${delay}ms`)
-      if (sqlPool) {
-        try { await sqlPool.close() } catch {}
-        sqlPool = null
-        sqlPoolPromise = null
+      if (!isRetryableError(err) || attempt === maxAttempts) {
+        // Todos los reintentos agotados: resetear pool para la próxima llamada
+        if (isRetryableError(err)) triggerPoolReset()
+        throw err
       }
-      await new Promise((r) => setTimeout(r, delay))
+      console.warn(`[DB] ECONNRESET intento ${attempt}/${maxAttempts} — reintentando en 1000ms`)
+      // NO resetear el pool aquí — si 6 requests fallan en paralelo y todas resetean
+      // el pool, SQL Server recibe 6 reconexiones simultáneas → más ECONNRESET.
+      // Dejar que tarn retire la conexión muerta y cree una nueva sola.
+      await new Promise((r) => setTimeout(r, 1000))
     }
   }
   throw lastErr

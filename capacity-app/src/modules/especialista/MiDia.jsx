@@ -11,7 +11,7 @@ import { Calendar, Folder, CheckCircle, AlertCircle, Lock, Edit3 } from 'lucide-
 import { motion, AnimatePresence }   from 'framer-motion'
 import { useStore }                  from '../../context/StoreContext'
 import { useCapacity }               from '../../hooks/useCapacity'
-import { useSprint }                 from '../../hooks/useSprint'
+import { useSprintContext }           from '../../context/SprintContext'
 import { isFestivo, CATS }           from '../../data/categories'
 import { minsToH }                   from '../../utils/capacityUtils'
 import * as entriesService           from '../../services/entriesService'
@@ -22,7 +22,6 @@ import Button                        from '../../components/ui/Button'
 import SprintBar                     from '../../components/SprintBar'
 import ActivityCard                  from './ActivityCard'
 import ActivityPanel                 from './ActivityPanel'
-import { PageLoader }                from '../../components/ui/Spinner'
 
 // ── Lógica de bloqueo ──────────────────────────────────────────────────────
 // locked=true → no se puede editar
@@ -93,7 +92,7 @@ export default function MiDia({ user }) {
     setActiveDay:  setSprintDay,
     periodoCerrado,
     loading:       sprintLoading,
-  } = useSprint()
+  } = useSprintContext()
 
   const dayKey  = state.activeDay    ?? sprintActiveDay
   const dateStr = state.activeDateStr
@@ -124,7 +123,7 @@ export default function MiDia({ user }) {
   }, [dispatch, setSprintDay])
 
   // ── Sin sprint o período cerrado → UI visible pero bloqueada ─────────
-  const sinPeriodo    = !sprint || periodoCerrado
+  const sinPeriodo    = !sprintLoading && (!sprint || periodoCerrado)
   const mensajeCierre = sinPeriodo
     ? (!sprint
         ? 'No hay sprint activo. Contacta al administrador para configurar uno.'
@@ -215,7 +214,6 @@ export default function MiDia({ user }) {
     finally { setSaving(false) }
   }
 
-  if (sprintLoading) return <PageLoader message="Cargando sprint activo..." />
 
   return (
     <div>

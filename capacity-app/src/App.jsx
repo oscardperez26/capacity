@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAuth }       from './context/AuthContext'
 import CambiarPassword  from './components/ui/CambiarPassword'
 import { StoreProvider } from './context/StoreContext'
+import { SprintProvider } from './context/SprintContext'
 import { ROLES }         from './data/mockData'
 
 import AppShell  from './layout/AppShell'
@@ -81,7 +82,9 @@ export default function App() {
   }
   return (
     <StoreProvider>
-      <AppContent />
+      <SprintProvider>
+        <AppContent />
+      </SprintProvider>
     </StoreProvider>
   )
 }
