@@ -29,6 +29,7 @@ const BASE_URLS = unique([
 
 let resolvedBaseUrl = BASE_URLS[0]
 let resolvePromise = null
+let baseResolved   = false   // true una vez que /health confirmó el puerto correcto
 
 function normalizeBaseUrl(url) {
   if (!url) return null
@@ -53,12 +54,15 @@ function healthUrl(baseUrl) {
 
 async function resolveBackendBaseUrl() {
   if (!import.meta.env.DEV) return resolvedBaseUrl
+  // Ya se encontró el backend en esta sesión — no repetir health checks
+  if (baseResolved) return resolvedBaseUrl
   if (resolvePromise) return resolvePromise
 
   resolvePromise = (async () => {
     for (const base of BASE_URLS) {
       if (await isBackendAlive(base)) {
         resolvedBaseUrl = base
+        baseResolved = true
         return base
       }
     }
@@ -81,6 +85,8 @@ async function isBackendAlive(baseUrl) {
       method: 'GET',
       signal: controller.signal,
     })
+    // 429 = backend vivo pero saturado — no intentar otros puertos
+    if (res.status === 429) return true
     if (!res.ok) return false
 
     const data = await res.json().catch(() => null)
@@ -147,6 +153,8 @@ async function request(method, path, body = null, options = {}) {
   }
 
   if (networkFailed || !res) {
+    // Reset para que el próximo request re-descubra el backend (puede haber cambiado de puerto)
+    baseResolved = false
     throw new ApiError('No se pudo conectar con el servidor. Verifica tu conexion.', 0)
   }
 

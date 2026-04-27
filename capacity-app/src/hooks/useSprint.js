@@ -7,7 +7,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
-import { api } from '../lib/apiClient'
+import { api, ApiError } from '../lib/apiClient'
 
 // ── Construye los días de la semana actual del calendario ─────────────────
 function buildCurrentCalendarWeek() {
@@ -77,21 +77,33 @@ export function useSprint() {
 
         if (data?.sprint) {
           setSprint(data.sprint)
-          // Verifica si hay un período activo para esta semana
           setPeriodoCerrado(data.periodoCerrado === true)
         } else {
           setSprint(null)
           setPeriodoCerrado(false)
         }
-      } catch {
-        // Si el endpoint no existe aún, intenta /sprints
-        try {
-          const res2 = await api.get('/sprints')
-          const sprints = res2.data ?? []
-          const activo  = sprints.find(s => s.estado === 'activo')
-          setSprint(activo ? { id: activo.id_sprint, nombre: activo.nombre, inicio: activo.fecha_inicio, fin: activo.fecha_fin } : null)
-          setPeriodoCerrado(!activo)
-        } catch {
+      } catch (err) {
+        // 429 = rate limit: no disparar fallback, el backend está vivo
+        // 401 = no autorizado: no tiene sentido reintentar
+        if (err instanceof ApiError && (err.status === 429 || err.status === 401)) {
+          setSprint(null)
+          setPeriodoCerrado(true)
+          return
+        }
+        // Fallback a /sprints solo si el endpoint no existe (404) o hay error de red (0)
+        const shouldFallback = !(err instanceof ApiError) || err.status === 0 || err.status === 404
+        if (shouldFallback) {
+          try {
+            const res2 = await api.get('/sprints')
+            const sprints = res2.data ?? []
+            const activo  = sprints.find(s => s.estado === 'activo')
+            setSprint(activo ? { id: activo.id_sprint, nombre: activo.nombre, inicio: activo.fecha_inicio, fin: activo.fecha_fin } : null)
+            setPeriodoCerrado(!activo)
+          } catch {
+            setSprint(null)
+            setPeriodoCerrado(true)
+          }
+        } else {
           setSprint(null)
           setPeriodoCerrado(true)
         }

@@ -47,15 +47,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }))
 
-// ── Rate limiting global ───────────────────────────────────────────────────
-app.use(rateLimit({
-  windowMs:        RATE_LIMIT.windowMs,
-  max:             RATE_LIMIT.max,
-  standardHeaders: true,
-  legacyHeaders:   false,
-  message: { success: false, error: 'Demasiadas solicitudes. Intenta más tarde.' },
-}))
-
 // ── Parsers y utilidades ───────────────────────────────────────────────────
 app.use(express.json({ limit: '1mb' }))
 app.use(express.urlencoded({ extended: true }))
@@ -68,7 +59,7 @@ if (IS_DEV) {
   app.use(morgan('combined'))
 }
 
-// ── Health check ───────────────────────────────────────────────────────────
+// ── Health check — ANTES del rate limiter para no consumir presupuesto ─────
 app.get('/health', (req, res) => {
   res.json({
     status:    'ok',
@@ -76,6 +67,17 @@ app.get('/health', (req, res) => {
     env:       process.env.NODE_ENV,
   })
 })
+
+// ── Rate limiting global — solo aplica a /api/* ────────────────────────────
+// En desarrollo se usa un límite más amplio para no bloquear el flujo de dev
+const apiLimiter = rateLimit({
+  windowMs:        RATE_LIMIT.windowMs,
+  max:             IS_DEV ? RATE_LIMIT.devMax : RATE_LIMIT.max,
+  standardHeaders: true,
+  legacyHeaders:   false,
+  message: { success: false, error: 'Demasiadas solicitudes. Intenta más tarde.' },
+})
+app.use('/api', apiLimiter)
 
 // ── API Routes ─────────────────────────────────────────────────────────────
 const API = '/api'
