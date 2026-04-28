@@ -3,6 +3,7 @@
 const { Router }       = require('express')
 const { query }        = require('../../config/database')
 const { authenticate } = require('../../middleware/auth')
+const { requireJefe }  = require('../../middleware/roles')
 
 const r = Router()
 r.use(authenticate)
@@ -86,14 +87,14 @@ r.get('/active', async (req, res, next) => {
 })
 
 // ── POST /api/sprints — crear sprint ─────────────────────────────────────
-r.post('/', async (req, res, next) => {
+r.post('/', requireJefe, async (req, res, next) => {
   try {
     const { nombre, fecha_inicio, fecha_fin } = req.body
     if (!nombre || !fecha_inicio || !fecha_fin)
       return res.status(400).json({ success:false, error:'Nombre, fecha_inicio y fecha_fin son requeridos' })
 
     const result = await query(
-      `INSERT INTO sprints (nombre, fecha_inicio, fecha_fin, estado) VALUES (?, ?, ?, 'draft')`,
+      `INSERT INTO sprints (nombre, fecha_inicio, fecha_fin, estado) VALUES (?, ?, ?, 'planificado')`,
       [nombre.trim(), fecha_inicio, fecha_fin]
     )
     const [sp] = await query('SELECT * FROM sprints WHERE id_sprint = ?', [result.insertId])
@@ -102,11 +103,11 @@ r.post('/', async (req, res, next) => {
 })
 
 // ── PATCH /api/sprints/:id/estado — activar o cerrar ─────────────────────
-r.patch('/:id/estado', async (req, res, next) => {
+r.patch('/:id/estado', requireJefe, async (req, res, next) => {
   try {
     const { estado } = req.body
     const id = parseInt(req.params.id)
-    if (!['activo','cerrado','draft'].includes(estado))
+    if (!['activo','cerrado','planificado'].includes(estado))
       return res.status(400).json({ success:false, error:'Estado inválido' })
 
     // Si se activa, desactiva el anterior

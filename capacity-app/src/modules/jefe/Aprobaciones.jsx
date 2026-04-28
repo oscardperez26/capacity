@@ -268,16 +268,32 @@ function EspCard({ esp, onAprobar, onRechazar, loadingKey }) {
 
 // ── Histórico organizado por especialista ─────────────────────────────────
 function HistoricoJefe() {
-  const [data,    setData]    = useState([])
-  const [loading, setLoading] = useState(true)
-  const [openEsp, setOpenEsp] = useState({})
+  const [data,        setData]    = useState([])
+  const [loading,     setLoading] = useState(true)
+  const [loadingMore, setLoadMore]= useState(false)
+  const [pagination,  setPagination] = useState(null)
+  const [offset,      setOffset]  = useState(0)
+  const [openEsp,     setOpenEsp] = useState({})
 
-  useEffect(()=>{
-    api.get('/approvals/historico')
-      .then(r=>{ setData(r.data??[]); })
-      .catch(console.error)
-      .finally(()=>setLoading(false))
-  },[])
+  const LIMIT = 3
+
+  const load = useCallback(async (currentOffset = 0, append = false) => {
+    if (append) setLoadMore(true); else setLoading(true)
+    try {
+      const r = await api.get(`/approvals/historico?limit=${LIMIT}&offset=${currentOffset}`)
+      setData(prev => append ? [...prev, ...(r.data ?? [])] : (r.data ?? []))
+      setPagination(r.pagination ?? null)
+    } catch (e) { console.error(e) }
+    finally { if (append) setLoadMore(false); else setLoading(false) }
+  }, [])
+
+  const cargarMas = useCallback(() => {
+    const next = offset + LIMIT
+    setOffset(next)
+    load(next, true)
+  }, [offset, load])
+
+  useEffect(() => { load(0, false) }, [])
 
   if (loading) return <PageLoader message="Cargando histórico..." />
   if (!data.length) return (
@@ -288,7 +304,7 @@ function HistoricoJefe() {
 
   return (
     <div style={{display:'flex',flexDirection:'column',gap:12}}>
-      {data.map(esp=>(
+      {data.map((esp)=>(
         <div key={esp.id} style={{borderRadius:14,border:'1px solid var(--c-border)',
           overflow:'hidden',background:'var(--c-surface)'}}>
           {/* Header especialista */}
@@ -366,6 +382,19 @@ function HistoricoJefe() {
           )}
         </div>
       ))}
+
+      {pagination?.hasMore && (
+        <div style={{display:'flex',justifyContent:'center',marginTop:4}}>
+          <button
+            onClick={cargarMas}
+            disabled={loadingMore}
+            style={{padding:'8px 22px',borderRadius:10,border:'1px solid var(--c-border)',
+              background:'var(--c-surface)',color:'var(--t-muted)',fontSize:13,
+              fontWeight:600,cursor:loadingMore?'wait':'pointer'}}>
+            {loadingMore ? 'Cargando...' : `Cargar más (${pagination.total - data.length} sprints restantes)`}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

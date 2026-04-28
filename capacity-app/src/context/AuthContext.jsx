@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
-import { api, tokenStore } from '../lib/apiClient'
+import { api, tokenStore, setUnauthorizedHandler } from '../lib/apiClient'
 
 const AuthContext = createContext(null)
 
@@ -49,6 +49,12 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('capacity_user')
     setUser(null)
   }, [])
+
+  // Wire 401 auto-logout: any API call that gets a 401 triggers logout
+  useEffect(() => {
+    setUnauthorizedHandler(logout)
+    return () => setUnauthorizedHandler(null)
+  }, [logout])
 
   if (!ready) return null
 

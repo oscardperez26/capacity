@@ -38,8 +38,12 @@ async function aprobarSprint(req, res, next) {
   } catch (err) { next(err) }
 }
 async function getHistorico(req, res, next) {
-  try { res.json({ success:true, data: await svc.getHistorico(req.user.id) }) }
-  catch (err) { next(err) }
+  try {
+    const limit  = Math.min(parseInt(req.query.limit  ?? '3',  10), 10)
+    const offset = Math.max(parseInt(req.query.offset ?? '0',  10), 0)
+    const result = await svc.getHistorico(req.user.id, { limit, offset })
+    res.json({ success: true, data: result.data, pagination: result.pagination })
+  } catch (err) { next(err) }
 }
 
 module.exports = { getPendientes, aprobar, rechazar, aprobarTodo, aprobarSemana, aprobarSprint, getHistorico }

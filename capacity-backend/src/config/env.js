@@ -1,6 +1,6 @@
 'use strict'
 
-require('dotenv').config({ override: true })
+require('dotenv').config()
 
 const required = (key) => {
   const val = process.env[key]
@@ -39,7 +39,7 @@ module.exports = {
 
   // JWT
   JWT: {
-    secret:         optional('JWT_SECRET', 'dev_secret_change_in_production_32chars!!'),
+    secret:         required('JWT_SECRET'),
     expiresIn:      optional('JWT_EXPIRES_IN', '8h'),
     refreshExpires: optional('JWT_REFRESH_EXPIRES_IN', '7d'),
   },

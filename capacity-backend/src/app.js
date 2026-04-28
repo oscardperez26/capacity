@@ -93,10 +93,6 @@ app.use(`${API}/audit`,         auditRoutes)
 app.use(`${API}/notifications`,       notificationsRoutes)
 app.use(`${API}`,                     dashboardPersonalRoutes)
 
-// Diagnóstico temporal — remover después
-const debugRoute = require('./modules/entries/debug.route')
-app.use(`${API}`, debugRoute)
-
 // ── Error handling ─────────────────────────────────────────────────────────
 app.use(notFound)
 app.use(errorHandler)

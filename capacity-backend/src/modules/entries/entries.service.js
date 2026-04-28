@@ -1,6 +1,6 @@
 'use strict'
 
-const { query } = require('../../config/database')
+const { query, transaction } = require('../../config/database')
 const { logEvent } = require('../audit/audit.service')
 const approvalsService = require('../approvals/approvals.service')
 
@@ -305,18 +305,20 @@ async function finalizeEntry(userId, dateStr, userName) {
   const acts = await query('SELECT id_actividad FROM actividades WHERE id_registro = ?', [rd.id_registro])
   if (!acts.length) throw Object.assign(new Error('Sin actividades para finalizar'), { status: 400 })
 
-  // Marca el registro y todas sus actividades como "enviado"
-  await query(
-    `UPDATE registro_dia
-     SET estado = 'enviado', fecha_envio = NOW(), habilitado_edicion = 0, actualizado_en = NOW()
-     WHERE id_registro = ?`,
-    [rd.id_registro]
-  )
-  await query(
-    `UPDATE actividades SET estado = 'enviado', actualizado_en = NOW()
-     WHERE id_registro = ?`,
-    [rd.id_registro]
-  )
+  // Marca el registro y todas sus actividades como "enviado" — atómico
+  await transaction(async ({ query: txQ }) => {
+    await txQ(
+      `UPDATE registro_dia
+       SET estado = 'enviado', fecha_envio = NOW(), habilitado_edicion = 0, actualizado_en = NOW()
+       WHERE id_registro = ?`,
+      [rd.id_registro]
+    )
+    await txQ(
+      `UPDATE actividades SET estado = 'enviado', actualizado_en = NOW()
+       WHERE id_registro = ?`,
+      [rd.id_registro]
+    )
+  })
 
   // Auditoría
   try {
@@ -366,22 +368,63 @@ async function toggleFavorite(userId, subcategoriaId) {
 }
 
 // ── getHistorico ───────────────────────────────────────────────────────────
-async function getHistorico(userId) {
+async function getHistorico(userId, { limit = 5, offset = 0 } = {}) {
   const idEmpleado = await getEmpleadoId(userId)
+
+  // Paginate at sprint level — get the IDs of sprints for this page
+  const [{ total: totalSprints }] = await query(
+    `SELECT COUNT(DISTINCT rd.id_sprint) AS total FROM registro_dia rd WHERE rd.id_empleado = ?`,
+    [idEmpleado]
+  )
+
+  const sprintPage = await query(
+    `SELECT DISTINCT rd.id_sprint
+     FROM registro_dia rd
+     WHERE rd.id_empleado = ?
+     ORDER BY rd.id_sprint DESC
+     LIMIT ? OFFSET ?`,
+    [idEmpleado, limit, offset]
+  )
+
+  if (!sprintPage.length) {
+    return { data: [], pagination: { total: Number(totalSprints), limit, offset, hasMore: false } }
+  }
+
+  const sprintIds = sprintPage.map(r => r.id_sprint)
+  const sprintPh  = sprintIds.map(() => '?').join(',')
 
   const registros = await query(
     `SELECT rd.id_registro, rd.fecha, rd.estado, rd.id_periodo, rd.id_sprint,
+            rd.habilitado_edicion,
             p.numero_semana,
             s.nombre AS sprint_nombre, s.estado AS sprint_estado
      FROM registro_dia rd
      JOIN periodos p ON rd.id_periodo = p.id_periodo
      JOIN sprints  s ON rd.id_sprint  = s.id_sprint
-     WHERE rd.id_empleado = ?
+     WHERE rd.id_empleado = ? AND rd.id_sprint IN (${sprintPh})
      ORDER BY s.id_sprint DESC, rd.fecha DESC`,
-    [idEmpleado]
+    [idEmpleado, ...sprintIds]
   )
 
-  // Agrupa por sprint → semana → día
+  if (!registros.length) {
+    return { data: [], pagination: { total: Number(totalSprints), limit, offset, hasMore: false } }
+  }
+
+  // Batch-load all activities for these registros — eliminates N+1
+  const regIds = registros.map(r => r.id_registro)
+  const regPh  = regIds.map(() => '?').join(',')
+  const acts   = await query(
+    `${ACTIVITY_QUERY} WHERE a.id_registro IN (${regPh}) ORDER BY a.id_registro, a.creado_en ASC`,
+    regIds
+  )
+
+  const actsByReg = {}
+  for (const a of acts) {
+    if (!actsByReg[a.id_registro]) actsByReg[a.id_registro] = []
+    actsByReg[a.id_registro].push(a)
+  }
+
+  const DAYS = ['Dom','Lun','Mar','Mie','Jue','Vie','Sab']
   const sprintsMap = {}
   for (const rd of registros) {
     if (!sprintsMap[rd.id_sprint]) {
@@ -407,12 +450,9 @@ async function getHistorico(userId) {
       }
     }
 
-    const acts = await query(
-      `${ACTIVITY_QUERY} WHERE a.id_registro = ? ORDER BY a.creado_en ASC`,
-      [rd.id_registro]
-    )
-    const dayMins = acts.reduce((s,a) => s + a.duracion_mins, 0)
-    const actList = acts.map(a => ({
+    const dayActs  = actsByReg[rd.id_registro] ?? []
+    const dayMins  = dayActs.reduce((s, a) => s + a.duracion_mins, 0)
+    const actList  = dayActs.map(a => ({
       id:         a.act_id,
       name:       a.sub_nombre,
       model:      a.sub_modelo,
@@ -423,15 +463,13 @@ async function getHistorico(userId) {
       comentario: a.comentario_rechazo,
     }))
 
-    // Distribucion por modelo en la semana
-    for (const a of acts) {
+    for (const a of dayActs) {
       sp.weeks[rd.numero_semana].byModel[a.sub_modelo] =
         (sp.weeks[rd.numero_semana].byModel[a.sub_modelo] ?? 0) + a.duracion_mins
     }
 
     const fechaReal = fmtDate(rd.fecha)
     const d = new Date(fechaReal + 'T12:00:00')
-    const DAYS = ['Dom','Lun','Mar','Mie','Jue','Vie','Sab']
     sp.weeks[rd.numero_semana].days.push({
       idRegistro: rd.id_registro,
       fechaReal,
@@ -445,10 +483,20 @@ async function getHistorico(userId) {
     sp.totalMins += dayMins
   }
 
-  return Object.values(sprintsMap).map(sp => ({
+  const data = Object.values(sprintsMap).map(sp => ({
     ...sp,
     weeks: Object.values(sp.weeks),
   }))
+
+  return {
+    data,
+    pagination: {
+      total:   Number(totalSprints),
+      limit,
+      offset,
+      hasMore: offset + sprintPage.length < Number(totalSprints),
+    },
+  }
 }
 
 

@@ -22,19 +22,19 @@ Ruta: `src/db/migrations/sqlserver`
 1. **Congelar escrituras** de la app hacia MariaDB.
 2. Ejecutar esquema:
    ```powershell
-   sqlcmd -S localhost,53604 -U SQL2025TEST -P Admin1234 -d capacity -i "src/db/migrations/sqlserver/01_schema_sqlserver.sql"
+   sqlcmd -S $env:DB_HOST,$env:DB_PORT -U $env:DB_USER -P $env:DB_PASSWORD -d $env:DB_NAME -i "src/db/migrations/sqlserver/01_schema_sqlserver.sql"
    ```
 3. Ejecutar datos:
    ```powershell
-   sqlcmd -S localhost,53604 -U SQL2025TEST -P Admin1234 -d capacity -i "src/db/migrations/sqlserver/03_data_sqlserver.sql"
+   sqlcmd -S $env:DB_HOST,$env:DB_PORT -U $env:DB_USER -P $env:DB_PASSWORD -d $env:DB_NAME -i "src/db/migrations/sqlserver/03_data_sqlserver.sql"
    ```
 4. Ejecutar constraints + indices:
    ```powershell
-   sqlcmd -S localhost,53604 -U SQL2025TEST -P Admin1234 -d capacity -i "src/db/migrations/sqlserver/02_constraints_indexes_sqlserver.sql"
+   sqlcmd -S $env:DB_HOST,$env:DB_PORT -U $env:DB_USER -P $env:DB_PASSWORD -d $env:DB_NAME -i "src/db/migrations/sqlserver/02_constraints_indexes_sqlserver.sql"
    ```
 5. Ejecutar checks:
    ```powershell
-   sqlcmd -S localhost,53604 -U SQL2025TEST -P Admin1234 -d capacity -i "src/db/migrations/sqlserver/04_postload_checks.sql"
+   sqlcmd -S $env:DB_HOST,$env:DB_PORT -U $env:DB_USER -P $env:DB_PASSWORD -d $env:DB_NAME -i "src/db/migrations/sqlserver/04_postload_checks.sql"
    ```
 6. Cambiar variables del backend a SQL Server y reiniciar.
 7. Correr smoke tests API:

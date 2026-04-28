@@ -1,6 +1,6 @@
 'use strict'
 
-const { query }    = require('../../config/database')
+const { query, transaction } = require('../../config/database')
 const { logEvent } = require('../audit/audit.service')
 
 function fmtDate(val) {
@@ -256,35 +256,45 @@ async function _procesar(userId, idJefe, idRegistro, accion, comentario) {
   if (!rd) throw Object.assign(new Error('Jornada no encontrada'), { status: 404 })
   if (rd.estado !== 'enviado') throw Object.assign(new Error('La jornada no está pendiente de aprobación'), { status: 400 })
 
+  // Verifica que el jefe autenticado sea el jefe directo del empleado
+  // o tenga visibilidad configurada en jefe_areas_visibilidad
+  const [ownership] = await query(
+    `SELECT 1 AS ok FROM empleados e
+     WHERE e.id_empleado = ?
+       AND (
+         e.id_jefe = ?
+         OR e.id_area IN (SELECT id_area FROM jefe_areas_visibilidad WHERE id_jefe = ?)
+       )`,
+    [rd.emp_id, idJefe, idJefe]
+  )
+  if (!ownership) throw Object.assign(new Error('No tienes permiso para gestionar esta jornada'), { status: 403 })
+
   const [jefeRow] = await query(`SELECT CONCAT(nombre,' ',apellido) AS nombre FROM empleados WHERE id_empleado = ?`, [idJefe])
   const jefeNombre = jefeRow?.nombre ?? 'Jefe'
   const fechaStr   = fmtDate(rd.fecha)
 
-  // Historial
-  await query(
-    `INSERT INTO historial_aprobaciones (id_registro, id_revisor, accion, comentario)
-     VALUES (?, ?, ?, ?)`,
-    [idRegistro, userId, accion, comentario ?? null]
-  )
-
-  // Actualiza registro_dia
-  const habilitado = accion === 'rechazado' ? 1 : 0
-  if (accion === 'aprobado') {
-    await query(
-      `UPDATE registro_dia SET estado='aprobado', habilitado_edicion=0, fecha_aprobacion=NOW(), actualizado_en=NOW()
-       WHERE id_registro=?`,
-      [idRegistro]
+  // Historial + estados — atómico
+  await transaction(async ({ query: txQ }) => {
+    await txQ(
+      `INSERT INTO historial_aprobaciones (id_registro, id_revisor, accion, comentario)
+       VALUES (?, ?, ?, ?)`,
+      [idRegistro, userId, accion, comentario ?? null]
     )
-  } else {
-    await query(
-      `UPDATE registro_dia SET estado='rechazado', habilitado_edicion=1, actualizado_en=NOW()
-       WHERE id_registro=?`,
-      [idRegistro]
-    )
-  }
-
-  // Actualiza actividades
-  await query(`UPDATE actividades SET estado=?, actualizado_en=NOW() WHERE id_registro=?`, [accion, idRegistro])
+    if (accion === 'aprobado') {
+      await txQ(
+        `UPDATE registro_dia SET estado='aprobado', habilitado_edicion=0, fecha_aprobacion=NOW(), actualizado_en=NOW()
+         WHERE id_registro=?`,
+        [idRegistro]
+      )
+    } else {
+      await txQ(
+        `UPDATE registro_dia SET estado='rechazado', habilitado_edicion=1, actualizado_en=NOW()
+         WHERE id_registro=?`,
+        [idRegistro]
+      )
+    }
+    await txQ(`UPDATE actividades SET estado=?, actualizado_en=NOW() WHERE id_registro=?`, [accion, idRegistro])
+  })
 
   // Notifica al especialista
   if (accion === 'aprobado') {
@@ -338,8 +348,36 @@ async function notificarFinalizacion(idEmpleadoEsp, idRegistro, tipo) {
 }
 
 // ── HISTÓRICO ──────────────────────────────────────────────────────────────
-async function getHistorico(userId) {
+async function getHistorico(userId, { limit = 3, offset = 0 } = {}) {
   const idJefe = await getJefeId(userId)
+
+  // Paginate at sprint level to avoid cutting employee grouping mid-page
+  const [{ total: totalSprints }] = await query(
+    `SELECT COUNT(DISTINCT rd.id_sprint) AS total
+     FROM historial_aprobaciones ha
+     JOIN registro_dia rd ON ha.id_registro = rd.id_registro
+     JOIN empleados    e  ON rd.id_empleado = e.id_empleado
+     WHERE e.id_jefe = ?`,
+    [idJefe]
+  )
+
+  const sprintPage = await query(
+    `SELECT DISTINCT rd.id_sprint
+     FROM historial_aprobaciones ha
+     JOIN registro_dia rd ON ha.id_registro = rd.id_registro
+     JOIN empleados    e  ON rd.id_empleado = e.id_empleado
+     WHERE e.id_jefe = ?
+     ORDER BY rd.id_sprint DESC
+     LIMIT ? OFFSET ?`,
+    [idJefe, limit, offset]
+  )
+
+  if (!sprintPage.length) {
+    return { data: [], pagination: { total: Number(totalSprints), limit, offset, hasMore: false } }
+  }
+
+  const sprintIds = sprintPage.map(r => r.id_sprint)
+  const sprintPh  = sprintIds.map(() => '?').join(',')
 
   const rows = await query(
     `SELECT
@@ -359,10 +397,9 @@ async function getHistorico(userId) {
      JOIN periodos     p  ON rd.id_periodo   = p.id_periodo
      JOIN usuarios     u  ON ha.id_revisor   = u.id_usuario
      JOIN empleados    j  ON j.id_usuario    = u.id_usuario
-     WHERE e.id_jefe = ?
-     ORDER BY ha.creado_en DESC
-     LIMIT 300`,
-    [idJefe]
+     WHERE e.id_jefe = ? AND rd.id_sprint IN (${sprintPh})
+     ORDER BY ha.creado_en DESC`,
+    [idJefe, ...sprintIds]
   )
 
   const regIds = [...new Set(rows.map(r => r.id_registro))]
@@ -401,15 +438,24 @@ async function getHistorico(userId) {
       }
     }
     byEsp[r.emp_id].registros[key].historial.push({
-      id:        r.id_aprobacion,
-      accion:    r.accion,
-      comentario:r.comentario,
-      revisor:   r.revisor_nombre,
-      fecha:     r.creado_en,
+      id:         r.id_aprobacion,
+      accion:     r.accion,
+      comentario: r.comentario,
+      revisor:    r.revisor_nombre,
+      fecha:      r.creado_en,
     })
   }
 
-  return Object.values(byEsp).map(e => ({ ...e, registros: Object.values(e.registros) }))
+  const data = Object.values(byEsp).map(e => ({ ...e, registros: Object.values(e.registros) }))
+  return {
+    data,
+    pagination: {
+      total:   Number(totalSprints),
+      limit,
+      offset,
+      hasMore: offset + sprintPage.length < Number(totalSprints),
+    },
+  }
 }
 
 module.exports = {

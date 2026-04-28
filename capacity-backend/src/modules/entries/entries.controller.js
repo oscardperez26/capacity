@@ -104,8 +104,10 @@ async function toggleFavorite(req, res, next) {
 
 async function getHistorico(req, res, next) {
   try {
-    const data = await service.getHistorico(req.user.id)
-    res.json({ success: true, data })
+    const limit  = Math.min(parseInt(req.query.limit  ?? '5',  10), 20)
+    const offset = Math.max(parseInt(req.query.offset ?? '0',  10), 0)
+    const result = await service.getHistorico(req.user.id, { limit, offset })
+    res.json({ success: true, data: result.data, pagination: result.pagination })
   } catch (err) { next(err) }
 }
 

@@ -5,8 +5,10 @@ const service = require('./notifications.service')
 async function getMyNotifications(req, res, next) {
   try {
     const soloNoLeidas = req.query.unread === 'true'
-    const notifs = await service.getByUser(req.user.id, { soloNoLeidas })
-    res.json({ success: true, data: notifs })
+    const limit  = Math.min(parseInt(req.query.limit  ?? '50', 10), 200)
+    const offset = Math.max(parseInt(req.query.offset ?? '0',  10), 0)
+    const result = await service.getByUser(req.user.id, { soloNoLeidas, limit, offset })
+    res.json({ success: true, data: result.data, pagination: result.pagination })
   } catch (err) { next(err) }
 }
 

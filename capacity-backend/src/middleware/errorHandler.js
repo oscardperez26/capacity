@@ -46,9 +46,14 @@ function errorHandler(err, req, res, next) { // eslint-disable-line no-unused-va
     if (status === 500) console.error(err.stack)
   }
 
-  const clientMessage = (category === 'CONNECTION' && !IS_DEV)
-    ? 'Error de conexión temporal. Intenta de nuevo.'
-    : message
+  const SAFE_CATEGORIES = new Set(['BUSINESS', 'CONSTRAINT'])
+  const clientMessage = IS_DEV
+    ? message
+    : SAFE_CATEGORIES.has(category)
+      ? message
+      : category === 'CONNECTION'
+        ? 'Error de conexión temporal. Intenta de nuevo.'
+        : 'Error interno del servidor.'
 
   res.status(status).json({
     success: false,

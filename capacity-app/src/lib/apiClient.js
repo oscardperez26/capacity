@@ -105,6 +105,10 @@ export const tokenStore = {
   remove: () => localStorage.removeItem(TOKEN_KEY),
 }
 
+// 401 interceptor — AuthProvider registers its logout here
+let _onUnauthorized = null
+export function setUnauthorizedHandler(fn) { _onUnauthorized = fn }
+
 // Custom API error
 export class ApiError extends Error {
   constructor(message, status, data = null) {
@@ -165,7 +169,8 @@ async function request(method, path, body = null, options = {}) {
     : { success: res.ok }
 
   if (res.status === 401) {
-    if (data?.expired) tokenStore.remove()
+    tokenStore.remove()
+    if (_onUnauthorized) _onUnauthorized()
     throw new ApiError(data?.error ?? 'No autorizado', 401, data)
   }
 

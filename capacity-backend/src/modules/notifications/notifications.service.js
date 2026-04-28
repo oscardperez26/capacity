@@ -15,10 +15,15 @@ async function create({ idUsuario, tipo, titulo = tipo, mensaje, metadata = null
 
 // ── Obtener notificaciones de un usuario ──────────────────────────────────
 
-async function getByUser(userId, { soloNoLeidas = false } = {}) {
+async function getByUser(userId, { soloNoLeidas = false, limit = 50, offset = 0 } = {}) {
   const where = soloNoLeidas
     ? 'WHERE n.id_usuario = ? AND n.leida = 0'
     : 'WHERE n.id_usuario = ?'
+
+  const [{ total }] = await query(
+    `SELECT COUNT(*) AS total FROM notificaciones n ${where}`,
+    [userId]
+  )
 
   const rows = await query(
     `SELECT
@@ -31,11 +36,11 @@ async function getByUser(userId, { soloNoLeidas = false } = {}) {
      FROM notificaciones n
      ${where}
      ORDER BY n.creado_en DESC
-     LIMIT 50`,
-    [userId]
+     LIMIT ? OFFSET ?`,
+    [userId, limit, offset]
   )
 
-  return rows.map(r => ({
+  const data = rows.map(r => ({
     id:            r.id_notificacion,
     tipo:          r.tipo,
     mensaje:       r.mensaje,
@@ -45,6 +50,8 @@ async function getByUser(userId, { soloNoLeidas = false } = {}) {
     time:          formatRelativeTime(r.creado_en),
     ...getNotifStyle(r.tipo),
   }))
+
+  return { data, pagination: { total: Number(total), limit, offset, hasMore: offset + rows.length < Number(total) } }
 }
 
 // ── Contar no leídas ──────────────────────────────────────────────────────

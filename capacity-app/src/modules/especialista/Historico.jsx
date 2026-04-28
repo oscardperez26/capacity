@@ -221,27 +221,40 @@ function SeccionRechazadas({ data, onReenviado }) {
 
 // ── Componente principal ───────────────────────────────────────────────────
 export default function Historico() {
-  const [data,       setData]      = useState([])
-  const [loading,    setLoading]   = useState(true)
-  const [error,      setError]     = useState(null)
-  const [openSprint, setOpenSprint]= useState(null)
-  const [openWeek,   setOpenWeek]  = useState({})
-  const [openDay,    setOpenDay]   = useState({})
-  const [filterModel,setFilter]    = useState('')
-  const [showF,      setShowF]     = useState(false)
+  const [data,        setData]      = useState([])
+  const [loading,     setLoading]   = useState(true)
+  const [loadingMore, setLoadMore]  = useState(false)
+  const [pagination,  setPagination]= useState(null)
+  const [offset,      setOffset]    = useState(0)
+  const [error,       setError]     = useState(null)
+  const [openSprint,  setOpenSprint]= useState(null)
+  const [openWeek,    setOpenWeek]  = useState({})
+  const [openDay,     setOpenDay]   = useState({})
+  const [filterModel, setFilter]    = useState('')
+  const [showF,       setShowF]     = useState(false)
 
-  const load = useCallback(async () => {
-    setLoading(true); setError(null)
+  const LIMIT = 5
+
+  const load = useCallback(async (currentOffset = 0, append = false) => {
+    if (append) setLoadMore(true); else setLoading(true)
+    setError(null)
     try {
-      const { data: raw } = await api.get('/entries/historico')
-      const sprints = raw ?? []
-      setData(sprints)
-      if (sprints.length) { setOpenSprint(sprints[0].id) }
+      const res = await api.get(`/entries/historico?limit=${LIMIT}&offset=${currentOffset}`)
+      const sprints = res.data ?? []
+      setData(prev => append ? [...prev, ...sprints] : sprints)
+      setPagination(res.pagination ?? null)
+      if (!append && sprints.length) setOpenSprint(sprints[0].id)
     } catch (e) { setError(e.message) }
-    finally { setLoading(false) }
+    finally { if (append) setLoadMore(false); else setLoading(false) }
   }, [])
 
-  useEffect(() => { load() }, [])
+  const cargarMas = useCallback(() => {
+    const next = offset + LIMIT
+    setOffset(next)
+    load(next, true)
+  }, [offset, load])
+
+  useEffect(() => { load(0, false) }, [])
 
   const stats = useMemo(() => {
     const allActs = data.flatMap(s => s.weeks.flatMap(w => w.days.flatMap(d => d.acts)))
@@ -323,7 +336,7 @@ export default function Historico() {
 
       {/* Acordeón Sprint → Semana → Día → Actividades */}
       <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-        {data.map(sp => (
+        {data.map((sp) => (
           <div key={sp.id} className="card" style={{ overflow:'hidden' }}>
             {/* Sprint */}
             <button onClick={()=>setOpenSprint(openSprint===sp.id?null:sp.id)}
@@ -455,6 +468,19 @@ export default function Historico() {
           </div>
         ))}
       </div>
+
+      {pagination?.hasMore && (
+        <div style={{ display:'flex', justifyContent:'center', marginTop:8 }}>
+          <button
+            onClick={cargarMas}
+            disabled={loadingMore}
+            style={{ padding:'8px 22px', borderRadius:10, border:'1px solid var(--c-border)',
+              background:'var(--c-surface)', color:'var(--t-muted)', fontSize:13,
+              fontWeight:600, cursor:loadingMore ? 'wait' : 'pointer' }}>
+            {loadingMore ? 'Cargando...' : `Cargar más (${pagination.total - data.length} sprints restantes)`}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

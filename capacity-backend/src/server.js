@@ -1,7 +1,7 @@
 'use strict'
 
 const app = require('./app')
-const { PORT } = require('./config/env')
+const { PORT, IS_PROD } = require('./config/env')
 const { testConnection, pool } = require('./config/database')
 
 async function waitForDatabase(maxAttempts = 3, delayMs = 2000) {
@@ -53,8 +53,13 @@ async function start() {
 
 async function listenOnAvailablePort(initialPort) {
   const startPort = Number(initialPort) || 3001
-  const maxAttempts = 10
 
+  if (IS_PROD) {
+    const server = await listenOnce(startPort)
+    return { server, port: startPort }
+  }
+
+  const maxAttempts = 10
   for (let i = 0; i < maxAttempts; i++) {
     const candidate = startPort + i
     try {

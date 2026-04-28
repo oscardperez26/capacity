@@ -116,9 +116,10 @@ function TabSprints() {
   }
 
   const ESTADO_CFG = {
-    activo:  { label:'Activo',  bg:'rgba(48,105,59,.10)',  color:'#30693B', border:'rgba(48,105,59,.25)' },
-    cerrado: { label:'Cerrado', bg:'rgba(153,44,38,.08)', color:'#992C26', border:'rgba(153,44,38,.20)' },
-    draft:   { label:'Draft',   bg:'rgba(214,88,48,.08)', color:'#D65830', border:'rgba(214,88,48,.20)' },
+    activo:      { label:'Activo',       bg:'rgba(48,105,59,.10)',  color:'#30693B', border:'rgba(48,105,59,.25)' },
+    cerrado:     { label:'Cerrado',      bg:'rgba(153,44,38,.08)', color:'#992C26', border:'rgba(153,44,38,.20)' },
+    planificado: { label:'Planificado',  bg:'rgba(99,102,241,.10)', color:'#6366F1', border:'rgba(99,102,241,.25)' },
+    draft:       { label:'Planificado',  bg:'rgba(99,102,241,.10)', color:'#6366F1', border:'rgba(99,102,241,.25)' },
   }
 
   if (loading) return <PageLoader message="Cargando sprints..." />
