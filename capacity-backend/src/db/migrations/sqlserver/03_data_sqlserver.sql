@@ -1336,7 +1336,7 @@ INSERT INTO [usuarios] ([id_usuario], [correo], [password_hash], [id_rol], [esta
 	(54, N'laurah@permoda.com.co', N'$2a$10$a1c528gVdWcaNMOjehrFN..ijujhY4ip9kGrWPBWb7J147SaH6qbq', 3, N'activo', NULL, N'2026-04-21 19:05:06', 1),
 	(55, N'jorgecb@permoda.com.co', N'$2a$10$XYAboaUVZur6c9CAi2N1.uTP8XKawPh0WyObC7NRH6kEJU1e1cJ3i', 3, N'activo', NULL, N'2026-04-21 19:05:06', 1),
 	(56, N'paolapo@permoda.com.co', N'$2a$10$Qn2MEPD86itWYQH7NexQX.p2wNQVrNlgtN.csjUb/1QrCD8bwkare', 3, N'activo', NULL, N'2026-04-21 19:05:06', 1),
-	(57, N'rubbymc@permoda.com.co', N'$2a$10$placeholder', 3, N'activo', NULL, N'2026-04-21 19:05:06', 1),
+	(57, N'rubbymc@permoda.com.co', N'$2a$10$gKQwzBt.8LlB0wvXZBQXq.EdXimDDv4DjRcJuxXL1jEFbuyysxPBG', 3, N'activo', NULL, N'2026-04-21 19:05:06', 1),
 	(58, N'miguelmr@permoda.com.co', N'$2a$10$nZr8Mo/LHWUNQMHxywC03OLMqHDZtq.v6strrsIZCqLfXQPZ1eMyC', 3, N'activo', NULL, N'2026-04-21 19:05:06', 1),
 	(59, N'andreab@permoda.com.co', N'$2a$10$XIbHLeBavjAAVgdUzSot3eYdwdo4GLBKqsFJHItq4ONHO5RTdOHzW', 3, N'activo', NULL, N'2026-04-21 19:05:06', 1),
 	(60, N'marlenvh@permoda.com.co', N'$2a$10$Ge5vbB4vPuRyATfIrGzlFuHnEIa0NfnCjgaxjpcKGL7PwSzhPYMs.', 3, N'activo', NULL, N'2026-04-21 19:05:06', 1),

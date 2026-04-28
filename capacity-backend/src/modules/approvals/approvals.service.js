@@ -278,7 +278,7 @@ async function _procesar(userId, idJefe, idRegistro, accion, comentario) {
     await txQ(
       `INSERT INTO historial_aprobaciones (id_registro, id_revisor, accion, comentario)
        VALUES (?, ?, ?, ?)`,
-      [idRegistro, userId, accion, comentario ?? null]
+      [idRegistro, idJefe, accion, comentario ?? null]
     )
     if (accion === 'aprobado') {
       await txQ(

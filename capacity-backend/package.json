@@ -11,7 +11,7 @@
     "migrate:with-data": "node src/db/migrate.js --with-data",
     "migrate:full": "node src/db/migrate.js --fresh --with-data --check",
     "smoke:sqlserver": "node src/db/migrations/sqlserver/05_api_smoke_sqlserver.js",
-    "seed": "node src/db/seed.js",
+    "seed": "node src/db/seeds/seed.js",
     "migrate:fresh": "node src/db/migrate.js --fresh"
   },
   "dependencies": {

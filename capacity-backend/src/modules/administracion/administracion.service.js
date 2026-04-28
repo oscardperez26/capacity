@@ -351,7 +351,7 @@ async function asignarEspecialistas(userId, idProyecto, idEmpleados) {
        WHEN NOT MATCHED THEN
          INSERT (id_empleado, id_proyecto, activo, asignado_por, asignado_en)
          VALUES (source.id_empleado, source.id_proyecto, 1, source.asignado_por, SYSUTCDATETIME());`,
-      [esp.id_empleado, idProyecto, userId])
+      [esp.id_empleado, idProyecto, idJefe])
     await query(
       `INSERT INTO notificaciones (id_usuario,tipo,titulo,mensaje,id_referencia,tipo_referencia)
        VALUES (?,?,?,?,?,'proyecto')`,

@@ -516,15 +516,17 @@ async function reenviarJornada(userId, idRegistro) {
   const acts = await query('SELECT id_actividad FROM actividades WHERE id_registro = ?', [rd.id_registro])
   if (!acts.length) throw Object.assign(new Error('Sin actividades'), { status: 400 })
 
-  await query(
-    `UPDATE registro_dia SET estado='enviado', fecha_envio=NOW(), habilitado_edicion=0, actualizado_en=NOW()
-     WHERE id_registro=?`,
-    [rd.id_registro]
-  )
-  await query(
-    `UPDATE actividades SET estado='enviado', actualizado_en=NOW() WHERE id_registro=?`,
-    [rd.id_registro]
-  )
+  await transaction(async ({ query: txQ }) => {
+    await txQ(
+      `UPDATE registro_dia SET estado='enviado', fecha_envio=NOW(), habilitado_edicion=0, actualizado_en=NOW()
+       WHERE id_registro=?`,
+      [rd.id_registro]
+    )
+    await txQ(
+      `UPDATE actividades SET estado='enviado', actualizado_en=NOW() WHERE id_registro=?`,
+      [rd.id_registro]
+    )
+  })
 
   // Notifica al jefe
   try {
