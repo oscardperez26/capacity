@@ -1,13 +1,23 @@
 'use strict'
 
-const { Router }    = require('express')
-const svc           = require('./auth.service')
+const { Router }       = require('express')
+const rateLimit        = require('express-rate-limit')
+const svc              = require('./auth.service')
 const { authenticate } = require('../../middleware/auth')
+const { RATE_LIMIT, IS_DEV } = require('../../config/env')
 
 const r = Router()
 
+const authLimiter = rateLimit({
+  windowMs:        RATE_LIMIT.windowMs,
+  max:             IS_DEV ? RATE_LIMIT.devMax : RATE_LIMIT.authMax,
+  standardHeaders: true,
+  legacyHeaders:   false,
+  message: { success: false, error: 'Demasiados intentos. Espera 15 minutos.' },
+})
+
 // POST /api/auth/login
-r.post('/login', async (req, res, next) => {
+r.post('/login', authLimiter, async (req, res, next) => {
   try {
     const { email, password } = req.body
     if (!email || !password)
@@ -34,7 +44,7 @@ r.post('/change-password', authenticate, async (req, res, next) => {
 })
 
 // POST /api/auth/recover
-r.post('/recover', async (req, res, next) => {
+r.post('/recover', authLimiter, async (req, res, next) => {
   try {
     const data = await svc.recoverPassword(req.body.email)
     res.json({ success: true, data })

@@ -3,7 +3,7 @@
 const bcrypt    = require('bcryptjs')
 const jwt       = require('jsonwebtoken')
 const { query } = require('../../config/database')
-const { JWT }   = require('../../config/env')
+const { JWT, IS_DEV, BCRYPT_ROUNDS } = require('../../config/env')
 const { logEvent } = require('../audit/audit.service')
 
 const USER_SELECT = `
@@ -83,7 +83,7 @@ async function changePassword(userId, { passwordNueva }) {
   if (String(passwordNueva).trim() === String(user.numero_documento).trim())
     throw Object.assign(new Error('La nueva contraseña no puede ser tu número de documento'), { status: 400 })
 
-  const nuevoHash = await bcrypt.hash(passwordNueva, 10)
+  const nuevoHash = await bcrypt.hash(passwordNueva, BCRYPT_ROUNDS)
   await query(
     'UPDATE usuarios SET password_hash = ?, debe_cambiar_password = 0 WHERE id_usuario = ?',
     [nuevoHash, userId]
@@ -98,7 +98,7 @@ async function recoverPassword(email) {
     "SELECT id_usuario FROM usuarios WHERE correo = ? AND estado = 'activo'", [email]
   )
   if (!user) return { sent: true }
-  console.log(`[Auth] Recuperación solicitada para: ${email}`)
+  if (IS_DEV) console.log(`[Auth] Recuperación solicitada para: ${email}`)
   return { sent: true }
 }
 
