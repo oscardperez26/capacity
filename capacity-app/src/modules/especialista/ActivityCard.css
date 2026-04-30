@@ -1,0 +1,19 @@
+/* ActivityCard — estilos estáticos extraídos de JSX */
+
+.ac-inner       { flex: 1; min-width: 0; }
+.ac-header      { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+.ac-task-name   { font-size: 12.5px; font-weight: 700; }
+.ac-cat-label   { font-size: 8.5px; color: var(--t-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+.ac-obs-badge   { font-size: 8px; font-weight: 800; margin-left: auto; background: var(--c-warn-bg); color: var(--brand-orange); padding: 2px 6px; border-radius: 99px; }
+.ac-project-row    { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.ac-project-label  { font-size: 8.5px; font-weight: 700; text-transform: uppercase; color: var(--t-muted); letter-spacing: 0.4px; flex-shrink: 0; }
+.ac-project-select { flex: 1; padding: 5px 8px; background: var(--c-surface); border: 1.5px solid var(--c-border2); border-radius: 6px; font-size: 10.5px; font-weight: 600; color: var(--t-primary); cursor: pointer; min-width: 0; }
+.ac-project-locked { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.ac-project-dot    { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+.ac-project-name   { font-size: 9.5px; color: var(--c-success); font-weight: 600; }
+.ac-obs-warn    { font-size: 9px; color: var(--brand-orange); font-weight: 700; margin-top: 3px; display: flex; align-items: center; gap: 3px; }
+.ac-controls    { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; margin-left: 10px; }
+.ac-dur-row     { display: flex; align-items: center; gap: 4px; }
+.ac-dur-center  { text-align: center; }
+.ac-mins-label  { font-size: 7.5px; font-weight: 700; text-transform: uppercase; color: var(--t-muted); text-align: center; margin-top: 2px; letter-spacing: 0.4px; }
+.ac-ctrl-btn    { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: var(--c-surface2); border: 1px solid var(--c-border2); cursor: pointer; color: var(--t-secondary); }

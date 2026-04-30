@@ -5,6 +5,7 @@
  * 3. Gráficas: capacity por oficio, distribución dominio, comparativa, carga diaria, heatmap, pastel
  */
 
+import './MiEquipo.css'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
@@ -44,23 +45,15 @@ function CTip({ active, payload, label }) {
 
 // ── KPI Card ───────────────────────────────────────────────────────────────
 function KCard({ label, value, sub, icon, accent, warn }) {
-  const [hov, setHov]=useState(false)
+  const v = accent ? 'accent' : 'default'
   return (
-    <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-      style={{background:accent?'linear-gradient(135deg,#33289A,#4554A1)':'var(--c-surface)',
-        borderRadius:14,padding:'16px 18px',
-        border:accent?'none':'1px solid var(--c-border)',
-        boxShadow:hov?(accent?'0 8px 28px rgba(51,40,154,.4)':'0 6px 20px rgba(0,0,0,.12)')
-                     :(accent?'0 4px 14px rgba(51,40,154,.2)':'none'),
-        transform:hov?'translateY(-3px)':'none',transition:'all .2s cubic-bezier(.34,1.56,.64,1)'}}>
-      <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+    <div className={`me-kpi-card me-kpi-card--${v}`}>
+      <div className="me-kpi-icon-row">
         <div style={{color:accent?'rgba(255,255,255,.7)':warn?'var(--brand-orange)':'var(--c-accent)'}}>{icon}</div>
-        <div style={{fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:1,
-          color:accent?'rgba(255,255,255,.6)':'var(--t-muted)'}}>{label}</div>
+        <div className={`me-kpi-label me-kpi-label--${v}`}>{label}</div>
       </div>
-      <div style={{fontSize:28,fontWeight:900,letterSpacing:-1,lineHeight:1,
-        color:accent?'white':warn?'var(--brand-orange)':'var(--c-accent)'}}>{value}</div>
-      {sub&&<div style={{fontSize:12,marginTop:5,color:accent?'rgba(255,255,255,.55)':'var(--t-muted)'}}>{sub}</div>}
+      <div className={`me-kpi-value me-kpi-value--${v}${warn&&!accent?' me-kpi-value--warn':''}`}>{value}</div>
+      {sub&&<div className={`me-kpi-sub me-kpi-sub--${v}`}>{sub}</div>}
     </div>
   )
 }
@@ -90,7 +83,7 @@ function FiltroBtn({ label, active, children }) {
     document.addEventListener('mousedown',fn); return()=>document.removeEventListener('mousedown',fn)
   },[])
   return (
-    <div ref={ref} style={{position:'relative'}}>
+    <div ref={ref} className="me-filtro-wrap">
       <button onClick={()=>setOpen(o=>!o)}
         style={{display:'flex',alignItems:'center',gap:5,padding:'6px 12px',borderRadius:8,
           fontSize:13,fontWeight:700,cursor:'pointer',border:'none',transition:'all .15s',
@@ -101,10 +94,8 @@ function FiltroBtn({ label, active, children }) {
       </button>
       {open&&(
         <>
-          <div style={{position:'fixed',inset:0,zIndex:149}} onClick={()=>setOpen(false)}/>
-          <div style={{position:'absolute',top:'calc(100% + 8px)',right:0,background:'var(--c-surface)',
-            borderRadius:14,border:'1px solid var(--c-border)',boxShadow:'var(--s-xl)',
-            padding:16,zIndex:150,minWidth:220}}>
+          <div className="me-filtro-backdrop" onClick={()=>setOpen(false)}/>
+          <div className="me-filtro-dropdown">
             {typeof children==='function'?children(()=>setOpen(false)):children}
           </div>
         </>
@@ -120,39 +111,31 @@ function ModalDetalle({ data, modelo, onClose }) {
   const mins  = acts.reduce((s,a)=>s+a.duracion_mins,0)
   const meta  = MC[modelo]
   return (
-    <div style={{position:'fixed',inset:0,zIndex:500,display:'flex',alignItems:'center',justifyContent:'center',
-      background:'rgba(0,0,0,.45)',backdropFilter:'blur(4px)',padding:20}} onClick={onClose}>
-      <div style={{background:'var(--c-surface)',borderRadius:20,padding:26,maxWidth:560,width:'100%',
-        maxHeight:'80vh',overflowY:'auto',boxShadow:'var(--s-xl)',border:'1px solid var(--c-border)'}}
-        onClick={e=>e.stopPropagation()}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
-          <div>
+    <div className="me-modal-overlay" onClick={onClose}>
+      <div className="me-modal" onClick={e=>e.stopPropagation()}>
+        <div className="me-modal-hdr">
+          <div className="me-modal-info">
             <div style={{display:'flex',alignItems:'center',gap:10}}>
               <span style={{padding:'3px 10px',borderRadius:99,fontSize:12,fontWeight:800,
                 background:`${meta}15`,color:meta}}>{modelo}</span>
               <h3 style={{fontSize:17,fontWeight:800}}>{data.especialista?.nombre}</h3>
             </div>
-            <div style={{fontSize:12,color:'var(--t-muted)',marginTop:4}}>
+            <div className="me-modal-meta">
               {ML[modelo]} · {fmtM(mins)} · {acts.length} actividades
             </div>
           </div>
-          <button onClick={onClose} style={{width:30,height:30,borderRadius:8,border:'none',
-            background:'var(--c-surface2)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
-            <X size={14}/>
-          </button>
+          <button onClick={onClose} className="me-modal-close"><X size={14}/></button>
         </div>
-        <div style={{display:'flex',flexDirection:'column',gap:6}}>
-          {acts.length===0&&<div style={{textAlign:'center',color:'var(--t-muted)',padding:'20px 0',fontSize:13}}>Sin actividades en este dominio</div>}
+        <div className="me-modal-acts">
+          {acts.length===0&&<div className="me-modal-empty">Sin actividades en este dominio</div>}
           {acts.map((a,i)=>(
-            <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',
-              padding:'9px 12px',borderRadius:9,background:'var(--c-surface2)',border:'1px solid var(--c-border)'}}>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:12.5,fontWeight:700}}>{a.sub_nombre}</div>
-                {a.descripcion&&<div style={{fontSize:11,color:'var(--t-muted)',marginTop:2,fontStyle:'italic'}}>{a.descripcion}</div>}
-                {a.proyecto_nombre&&<div style={{fontSize:10,color:'var(--c-accent)',marginTop:2}}>📁 {a.proyecto_nombre}</div>}
+            <div key={i} className="me-modal-act-row">
+              <div className="me-modal-act-body">
+                <div className="me-modal-act-name">{a.sub_nombre}</div>
+                {a.descripcion&&<div className="me-modal-act-desc">{a.descripcion}</div>}
+                {a.proyecto_nombre&&<div className="me-modal-act-proj">📁 {a.proyecto_nombre}</div>}
               </div>
-              <span style={{fontSize:12,fontWeight:800,fontFamily:'JetBrains Mono, monospace',
-                color:'var(--t-secondary)',flexShrink:0,marginLeft:12}}>{fmtM(a.duracion_mins)}</span>
+              <span className="me-modal-act-mins">{fmtM(a.duracion_mins)}</span>
             </div>
           ))}
         </div>
@@ -166,7 +149,7 @@ function DominioCards({ espData, detalleCache, onDblClick }) {
   if (!espData) return null
   const total = Object.values(espData.byModel).reduce((s,v)=>s+v,1)
   return (
-    <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:8,marginTop:12,marginBottom:4}}>
+    <div className="me-dom-grid">
       {Object.entries(MC).map(([m, color])=>{
         const mins = espData.byModel[m]||0
         const pct  = Math.round(mins/total*100)
@@ -174,15 +157,14 @@ function DominioCards({ espData, detalleCache, onDblClick }) {
           <div key={m}
             onDoubleClick={()=>onDblClick(m)}
             title="Doble clic para ver detalle"
-            style={{padding:'12px 10px',borderRadius:12,textAlign:'center',cursor:'pointer',
-              background:`${color}10`,border:`1.5px solid ${color}25`,
-              transition:'all .2s',userSelect:'none'}}
+            className="me-dom-card"
+            style={{background:`${color}10`,border:`1.5px solid ${color}25`}}
             onMouseEnter={e=>{e.currentTarget.style.transform='scale(1.04)';e.currentTarget.style.boxShadow=`0 4px 16px ${color}30`}}
             onMouseLeave={e=>{e.currentTarget.style.transform='scale(1)';e.currentTarget.style.boxShadow='none'}}>
-            <div style={{fontSize:11,fontWeight:800,color,marginBottom:4}}>{m}</div>
-            <div style={{fontSize:22,fontWeight:900,color,lineHeight:1}}>{pct}%</div>
-            <div style={{fontSize:10,color:'var(--t-muted)',marginTop:4}}>{fmtM(mins)}</div>
-            <div style={{fontSize:9,color:'var(--t-muted)',marginTop:2}}>{ML[m]}</div>
+            <div className="me-dom-model" style={{color}}>{m}</div>
+            <div className="me-dom-pct" style={{color}}>{pct}%</div>
+            <div className="me-dom-mins">{fmtM(mins)}</div>
+            <div className="me-dom-lbl">{ML[m]}</div>
           </div>
         )
       })}
@@ -194,9 +176,9 @@ function DominioCards({ espData, detalleCache, onDblClick }) {
 function CapBar({ pct }) {
   const col = capCol(pct)
   return (
-    <div style={{flex:1,display:'flex',flexDirection:'column',gap:3}}>
-      <div style={{height:6,borderRadius:99,background:'var(--c-border)',overflow:'hidden'}}>
-        <div style={{height:'100%',width:`${Math.min(pct,100)}%`,background:col,borderRadius:99,transition:'width .5s'}}/>
+    <div className="me-capbar">
+      <div className="me-capbar-track">
+        <div className="me-capbar-fill" style={{width:`${Math.min(pct,100)}%`,background:col}}/>
       </div>
     </div>
   )
@@ -227,36 +209,29 @@ function FilaEspecialista({ esp, buildQs }) {
 
   return (
     <>
-      <div style={{borderRadius:10, border:'1px solid var(--c-border)',
-        overflow:'hidden', boxShadow:isOpen?'var(--s-sm)':'none', marginBottom:4}}>
-        <div onClick={handleClick}
-          style={{display:'flex',alignItems:'center',gap:10,padding:'9px 14px',cursor:'pointer',
-            background:isOpen?`${col}08`:'var(--c-surface)', transition:'background .15s',
-            borderBottom:isOpen?'1px solid var(--c-border)':'none'}}>
+      <div className="me-fila" style={{boxShadow:isOpen?'var(--s-sm)':'none'}}>
+        <div onClick={handleClick} className="me-fila-btn"
+          style={{background:isOpen?`${col}08`:'var(--c-surface)',borderBottom:isOpen?'1px solid var(--c-border)':'none'}}>
           <div style={{width:32,height:32,borderRadius:8,background:`${col}20`,
             display:'flex',alignItems:'center',justifyContent:'center',
             fontSize:11,fontWeight:800,color:col,flexShrink:0}}>{initials}</div>
-          <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:12.5,fontWeight:700}}>{esp.nombre}</div>
-            <div style={{fontSize:10,color:'var(--t-muted)',overflow:'hidden',
-              textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:200}}>{esp.oficio||'—'}</div>
+          <div className="me-fila-info">
+            <div className="me-fila-name">{esp.nombre}</div>
+            <div className="me-fila-role">{esp.oficio||'—'}</div>
           </div>
           <CapBar pct={esp.capacity}/>
-          <div style={{fontSize:13,fontWeight:900,color:col,fontFamily:'JetBrains Mono,monospace',
-            flexShrink:0,minWidth:38,textAlign:'right'}}>{esp.capacity}%</div>
-          <div style={{fontSize:10,color:'var(--t-muted)',flexShrink:0,minWidth:36,textAlign:'right'}}>
-            {fmtM(esp.totalMins)}</div>
+          <div className="me-fila-pct" style={{color:col}}>{esp.capacity}%</div>
+          <div className="me-fila-mins">{fmtM(esp.totalMins)}</div>
           {isOpen?<ChevronUp size={13} style={{color:'var(--t-muted)',flexShrink:0}}/>
                  :<ChevronDown size={13} style={{color:'var(--t-muted)',flexShrink:0}}/>}
         </div>
         {isOpen && (
-          <div style={{padding:'10px 14px 14px',background:'var(--c-surface2)'}}>
+          <div className="me-fila-detail">
             {loading
-              ? <div style={{textAlign:'center',padding:'12px 0',fontSize:12,color:'var(--t-muted)'}}>Cargando...</div>
+              ? <div className="me-fila-loading">Cargando...</div>
               : <>
-                  <div style={{fontSize:10,color:'var(--t-muted)',fontWeight:700,
-                    textTransform:'uppercase',letterSpacing:.8,marginBottom:6}}>
-                    Distribución por dominio · <span style={{fontWeight:400}}>doble clic para ver actividades</span>
+                  <div className="me-dominio-hint">
+                    Distribución por dominio · <span>doble clic para ver actividades</span>
                   </div>
                   <DominioCards espData={esp} detalleCache={detalle}
                     onDblClick={modelo=>setModal({esp,modelo,detalle})}/>
@@ -292,32 +267,27 @@ function ListaEspecialistas({ especialistas, rango, filtro, sprintId, customIni,
   }
 
   return (
-    <div style={{display:'flex',flexDirection:'column',gap:8}}>
+    <div className="me-esp-list">
       {Object.entries(porArea).map(([area, esps]) => {
         const isOpen = openAreas[area]
         const avgCap = Math.round(esps.reduce((s,e)=>s+e.capacity,0)/esps.length)
         const col    = capCol(avgCap)
         return (
-          <div key={area} style={{borderRadius:12,border:'1px solid var(--c-border)',overflow:'hidden'}}>
-            {/* Cabecera del área — clic para colapsar/expandir */}
-            <div onClick={()=>toggleArea(area)}
-              style={{display:'flex',alignItems:'center',gap:10,padding:'11px 16px',
-                cursor:'pointer',background:isOpen?'var(--c-surface2)':'var(--c-surface)',
-                borderBottom:isOpen?'1px solid var(--c-border)':'none',
-                transition:'background .15s'}}>
-              <div style={{width:8,height:8,borderRadius:'50%',background:col,flexShrink:0}}/>
-              <div style={{flex:1,fontSize:13,fontWeight:800,color:'var(--t-primary)'}}>{area}</div>
-              <span style={{fontSize:11,color:'var(--t-muted)',fontWeight:600,marginRight:6}}>
+          <div key={area} className="me-area-card">
+            <div onClick={()=>toggleArea(area)} className="me-area-hdr"
+              style={{background:isOpen?'var(--c-surface2)':'var(--c-surface)',
+                borderBottom:isOpen?'1px solid var(--c-border)':'none'}}>
+              <div className="me-area-dot" style={{background:col}}/>
+              <div className="me-area-name">{area}</div>
+              <span className="me-area-count">
                 {esps.length} especialista{esps.length!==1?'s':''}
               </span>
-              <span style={{fontSize:12,fontWeight:800,color:col,fontFamily:'JetBrains Mono,monospace',
-                marginRight:4}}>{avgCap}% prom</span>
+              <span className="me-area-pct" style={{color:col}}>{avgCap}% prom</span>
               {isOpen?<ChevronUp size={14} style={{color:'var(--t-muted)',flexShrink:0}}/>
                      :<ChevronDown size={14} style={{color:'var(--t-muted)',flexShrink:0}}/>}
             </div>
-            {/* Lista de especialistas del área */}
             {isOpen && (
-              <div style={{padding:'10px 12px'}}>
+              <div className="me-area-body">
                 {esps.map(esp => (
                   <FilaEspecialista key={esp.id} esp={esp} buildQs={buildQs}/>
                 ))}
@@ -326,7 +296,6 @@ function ListaEspecialistas({ especialistas, rango, filtro, sprintId, customIni,
           </div>
         )
       })}
-
     </div>
   )
 }
@@ -437,39 +406,34 @@ function GraficaHeatmap({ data }) {
     return <div style={{textAlign:'center',color:'var(--t-muted)',padding:'20px 0',fontSize:13}}>Sin datos para el período</div>
   const max = Math.max(...data.map(d=>d.mins),1)
   return (
-    <div style={{display:'flex',flexDirection:'column',gap:12}}>
-      <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
+    <div className="me-heatmap-wrap">
+      <div className="me-heatmap-grid">
         {data.map((d,i)=>{
           const intensity = d.mins/max
-          const bg = d.mins===0 ? 'var(--c-surface2)'
-            : `rgba(51,40,154,${0.1+intensity*0.8})`
+          const bg = d.mins===0 ? 'var(--c-surface2)' : `rgba(51,40,154,${0.1+intensity*0.8})`
           const textColor = intensity>0.5?'white':'var(--t-primary)'
           return (
-            <div key={i} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:5}}>
-              <div style={{width:68,height:68,borderRadius:12,background:bg,
-                display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',
-                border:'1px solid rgba(51,40,154,.15)',transition:'transform .2s',cursor:'default'}}
+            <div key={i} className="me-heatmap-cell">
+              <div className="me-heatmap-tile" style={{background:bg}}
                 onMouseEnter={e=>e.currentTarget.style.transform='scale(1.07)'}
                 onMouseLeave={e=>e.currentTarget.style.transform='scale(1)'}>
-                <div style={{fontSize:13,fontWeight:700,color:textColor}}>{d.dia}</div>
+                <div className="me-heatmap-day" style={{color:textColor}}>{d.dia}</div>
                 {d.mins>0&&(
                   <>
-                    <div style={{fontSize:11,fontWeight:800,color:textColor,fontFamily:'JetBrains Mono, monospace'}}>{fmtM(d.avg)}</div>
-                    <div style={{fontSize:9,color:intensity>0.5?'rgba(255,255,255,.7)':'var(--t-muted)'}}>avg/act</div>
+                    <div className="me-heatmap-avg" style={{color:textColor}}>{fmtM(d.avg)}</div>
+                    <div className="me-heatmap-sublbl" style={{color:intensity>0.5?'rgba(255,255,255,.7)':'var(--t-muted)'}}>avg/act</div>
                   </>
                 )}
               </div>
-              <div style={{fontSize:9.5,color:'var(--t-muted)',fontWeight:600}}>{fmtM(d.mins)}</div>
+              <div className="me-heatmap-total">{fmtM(d.mins)}</div>
             </div>
           )
         })}
       </div>
-      {/* Leyenda */}
-      <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,fontSize:10.5,color:'var(--t-muted)'}}>
+      <div className="me-heatmap-legend">
         <span>Menos actividad</span>
         {[0.1,0.3,0.5,0.7,0.9].map((v,i)=>(
-          <div key={i} style={{width:22,height:14,borderRadius:4,
-            background:`rgba(51,40,154,${v})`}}/>
+          <div key={i} className="me-heatmap-swatch" style={{background:`rgba(51,40,154,${v})`}}/>
         ))}
         <span>Más actividad</span>
       </div>
@@ -515,39 +479,29 @@ export default function MiEquipo() {
   return (
     <div>
       {/* ── Header del jefe ── */}
-      <div style={{background:'linear-gradient(135deg,#eeeaf8,#ddd7f0)',borderRadius:16,
-        padding:'18px 22px',marginBottom:12,display:'flex',alignItems:'center',
-        justifyContent:'space-between',flexWrap:'wrap',gap:12,
-        border:'1px solid rgba(51,40,154,.12)',boxShadow:'0 2px 12px rgba(51,40,154,.08)'}}>
-        <div style={{display:'flex',alignItems:'center',gap:14}}>
-          <div style={{width:50,height:50,borderRadius:14,
-            background:'linear-gradient(135deg,#33289A,#4554A1)',
-            display:'flex',alignItems:'center',justifyContent:'center',
-            fontSize:18,fontWeight:800,color:'white',boxShadow:'0 4px 14px rgba(51,40,154,.3)'}}>
-            {initials}
-          </div>
+      <div className="me-jefe-hdr">
+        <div className="me-jefe-inner">
+          <div className="me-avatar">{initials}</div>
           <div>
-            <div style={{fontSize:18,fontWeight:800}}>{jefe.nombre}</div>
-            <div style={{fontSize:13,color:'var(--t-secondary)',marginTop:2}}>
+            <div className="me-jefe-name">{jefe.nombre}</div>
+            <div className="me-jefe-role">
               {jefe.cargo} · <span style={{color:'var(--t-muted)'}}>{jefe.area}</span>
             </div>
           </div>
         </div>
 
         {/* ── Filtros ── */}
-        <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
+        <div className="me-hdr-filters">
           {/* DÍA */}
           <FiltroBtn label="Día" active={filtro==='dia'}>
             {close=>(
               <div>
-                <div style={{fontSize:12,fontWeight:600,color:'var(--t-muted)',marginBottom:6}}>Seleccionar día</div>
+                <div className="me-filtro-lbl">Seleccionar día</div>
                 <input type="date" defaultValue={customIni} max={hoy}
                   onChange={e=>{setIni(e.target.value);setFin(e.target.value)}}
-                  style={{width:'100%',padding:'7px 10px',borderRadius:8,border:'1px solid var(--c-border)',
-                    background:'var(--c-surface2)',fontSize:13,color:'var(--t-primary)'}}/>
+                  className="me-filtro-input"/>
                 <button onClick={()=>{applyFiltro('dia',customIni,customIni);close();load()}}
-                  style={{width:'100%',marginTop:10,padding:'8px',borderRadius:8,background:'var(--c-accent)',
-                    color:'white',fontSize:13,fontWeight:700,cursor:'pointer',border:'none'}}>Aplicar</button>
+                  className="me-filtro-apply">Aplicar</button>
               </div>
             )}
           </FiltroBtn>
@@ -556,7 +510,7 @@ export default function MiEquipo() {
           <FiltroBtn label="Semana" active={filtro==='semana'}>
             {close=>(
               <div>
-                <div style={{fontSize:12,fontWeight:600,color:'var(--t-muted)',marginBottom:6}}>Semana</div>
+                <div className="me-filtro-lbl">Semana</div>
                 <input type="week" onChange={e=>{
                   const [y,w]=e.target.value.split('-W')
                   if(!y||!w)return
@@ -565,11 +519,9 @@ export default function MiEquipo() {
                   const dom=new Date(lun);dom.setDate(lun.getDate()+6)
                   const fmt=d2=>d2.toISOString().split('T')[0]
                   setIni(fmt(lun));setFin(fmt(dom))
-                }} style={{width:'100%',padding:'7px 10px',borderRadius:8,border:'1px solid var(--c-border)',
-                  background:'var(--c-surface2)',fontSize:13,color:'var(--t-primary)'}}/>
+                }} className="me-filtro-input"/>
                 <button onClick={()=>{applyFiltro('semana',customIni,customFin);close();load()}}
-                  style={{width:'100%',marginTop:10,padding:'8px',borderRadius:8,background:'var(--c-accent)',
-                    color:'white',fontSize:13,fontWeight:700,cursor:'pointer',border:'none'}}>Aplicar</button>
+                  className="me-filtro-apply">Aplicar</button>
               </div>
             )}
           </FiltroBtn>
@@ -578,16 +530,14 @@ export default function MiEquipo() {
           <FiltroBtn label="Mes" active={filtro==='mes'}>
             {close=>(
               <div>
-                <div style={{fontSize:12,fontWeight:600,color:'var(--t-muted)',marginBottom:6}}>Mes</div>
+                <div className="me-filtro-lbl">Mes</div>
                 <input type="month" defaultValue={hoy.slice(0,7)} onChange={e=>{
                   const [y,m]=e.target.value.split('-');if(!y||!m)return
                   setIni(`${y}-${m}-01`)
                   setFin(new Date(parseInt(y),parseInt(m),0).toISOString().split('T')[0])
-                }} style={{width:'100%',padding:'7px 10px',borderRadius:8,border:'1px solid var(--c-border)',
-                  background:'var(--c-surface2)',fontSize:13,color:'var(--t-primary)'}}/>
+                }} className="me-filtro-input"/>
                 <button onClick={()=>{applyFiltro('mes',customIni,customFin);close();load()}}
-                  style={{width:'100%',marginTop:10,padding:'8px',borderRadius:8,background:'var(--c-accent)',
-                    color:'white',fontSize:13,fontWeight:700,cursor:'pointer',border:'none'}}>Aplicar</button>
+                  className="me-filtro-apply">Aplicar</button>
               </div>
             )}
           </FiltroBtn>
@@ -596,8 +546,8 @@ export default function MiEquipo() {
           <FiltroBtn label="Sprint" active={filtro==='sprint'}>
             {close=>(
               <div>
-                <div style={{fontSize:12,fontWeight:600,color:'var(--t-muted)',marginBottom:8}}>Sprint</div>
-                <div style={{display:'flex',flexDirection:'column',gap:4}}>
+                <div className="me-filtro-lbl" style={{marginBottom:8}}>Sprint</div>
+                <div className="me-sprint-opts">
                   <button onClick={()=>{applyFiltro('sprint',null,null,null);close();load()}}
                     style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'9px 12px',
                       borderRadius:8,border:'1px solid var(--c-border)',
@@ -624,43 +574,36 @@ export default function MiEquipo() {
           {/* RANGO */}
           <FiltroBtn label="Rango" active={filtro==='rango'}>
             {close=>(
-              <div style={{display:'flex',flexDirection:'column',gap:10}}>
+              <div className="me-rango-fields">
                 <div>
-                  <div style={{fontSize:11,fontWeight:600,color:'var(--t-muted)',marginBottom:4}}>Desde</div>
+                  <div className="me-filtro-lbl-sm">Desde</div>
                   <input type="date" value={customIni} max={hoy} onChange={e=>setIni(e.target.value)}
-                    style={{width:'100%',padding:'7px 10px',borderRadius:8,border:'1px solid var(--c-border)',
-                      background:'var(--c-surface2)',fontSize:13,color:'var(--t-primary)'}}/>
+                    className="me-filtro-input"/>
                 </div>
                 <div>
-                  <div style={{fontSize:11,fontWeight:600,color:'var(--t-muted)',marginBottom:4}}>Hasta</div>
+                  <div className="me-filtro-lbl-sm">Hasta</div>
                   <input type="date" value={customFin} max={hoy} min={customIni} onChange={e=>setFin(e.target.value)}
-                    style={{width:'100%',padding:'7px 10px',borderRadius:8,border:'1px solid var(--c-border)',
-                      background:'var(--c-surface2)',fontSize:13,color:'var(--t-primary)'}}/>
+                    className="me-filtro-input"/>
                 </div>
                 <button onClick={()=>{applyFiltro('rango',customIni,customFin);close();load()}}
-                  style={{padding:'8px',borderRadius:8,background:'var(--c-accent)',color:'white',
-                    fontSize:13,fontWeight:700,cursor:'pointer',border:'none'}}>Aplicar</button>
+                  className="me-filtro-apply">Aplicar</button>
               </div>
             )}
           </FiltroBtn>
 
-          <button onClick={load} title="Actualizar"
-            style={{width:34,height:34,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',
-              background:'rgba(51,40,154,.08)',border:'1px solid rgba(51,40,154,.15)',cursor:'pointer',color:'var(--c-accent)'}}>
+          <button onClick={load} title="Actualizar" className="me-refresh-btn">
             <RefreshCw size={14}/>
           </button>
         </div>
       </div>
 
-      <div style={{marginBottom:16}}>
-        <h2 style={{fontSize:22,fontWeight:800,letterSpacing:-.4}}>Mi Equipo</h2>
-        <p style={{fontSize:13,color:'var(--t-muted)',marginTop:2}}>
-          {rango?.label} · {rango?.ini} — {rango?.fin}
-        </p>
+      <div className="me-page-hdr">
+        <h2 className="me-page-title">Mi Equipo</h2>
+        <p className="me-page-sub">{rango?.label} · {rango?.ini} — {rango?.fin}</p>
       </div>
 
       {/* ── KPIs ── */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:14}}>
+      <div className="me-kpi-grid">
         <KCard accent icon={<Users size={18}/>} label="Especialistas" value={kpis.totalEspecialistas} sub="En tu equipo"/>
         <KCard icon={<Clock size={18}/>} label="Horas registradas" value={fmtM(kpis.totalMins)} sub="Total del equipo"/>
         <KCard icon={<Clock size={16}/>} label="Promedio por día" value={fmtM(kpis.promMinsDia)} sub="Por especialista/día"/>
@@ -681,7 +624,7 @@ export default function MiEquipo() {
       </Sec>
 
       {/* ── Gráficas en grid 2x2 ── */}
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+      <div className="me-charts-2col">
         <Sec title="Distribución del equipo por dominio" dot="#3E5D9D">
           <GraficaDistribucion byModel={byModel}/>
         </Sec>
@@ -695,12 +638,10 @@ export default function MiEquipo() {
         <GraficaCarga data={cargaDiaria}/>
       </Sec>
 
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-        {/* Capacity por oficio */}
+      <div className="me-charts-2col">
         <Sec title="Capacity promedio por oficio" dot="#4554A1">
           <GraficaOficio data={byOficio}/>
         </Sec>
-        {/* Heatmap */}
         <Sec title="Calor de actividad por día de semana" dot="#992C26">
           <GraficaHeatmap data={heatmap}/>
         </Sec>

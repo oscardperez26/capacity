@@ -1,9 +1,4 @@
-/**
- * MisProyectos.jsx — mejoras v2
- * - KPI cards con animación hover y colores por estado
- * - Doble clic en proyecto → modal con detalle completo
- */
-
+import './MisProyectos.css'
 import { useState, useEffect } from 'react'
 import { RefreshCw, X, Clock, TrendingUp } from 'lucide-react'
 import { api }        from '../../lib/apiClient'
@@ -23,28 +18,19 @@ const ESTADO_MAP = {
   sin_iniciar: { label:'Sin iniciar',  cls:'badge-blue',   color:'#3E5D9D' },
 }
 
-// ── KPI Card con animación y color ─────────────────────────────────────────
+// ── KPI Card — hover vía CSS puro ──────────────────────────────────────────
 function KpiCard({ label, value, sub, accent, bgColor }) {
-  const [hov, setHov] = useState(false)
-  const bg     = accent ? 'linear-gradient(135deg,#33289A,#4554A1)' : bgColor ? bgColor : 'var(--c-surface)'
-  const shadow = hov ? `0 6px 20px ${bgColor ?? 'rgba(51,40,154,0.3)'}60` : 'none'
+  const isColored = accent || bgColor
+  const cardClass = `mp-kpi-card ${accent ? 'mp-kpi-card--accent' : bgColor ? 'mp-kpi-card--colored' : 'mp-kpi-card--default'}`
 
   return (
     <div
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{
-        background:bg, borderRadius:12, padding:'14px 16px',
-        border: accent||bgColor ? 'none' : '1px solid var(--c-border)',
-        boxShadow:shadow,
-        transform: hov ? 'translateY(-3px)' : 'none',
-        transition:'all .2s cubic-bezier(.34,1.56,.64,1)',
-        cursor:'default',
-      }}
+      className={cardClass}
+      style={bgColor && !accent ? { background: bgColor } : undefined}
     >
-      <div style={{ fontSize:8.5, fontWeight:700, textTransform:'uppercase', letterSpacing:1, color: accent||bgColor?'rgba(255,255,255,0.65)':'var(--t-muted)', marginBottom:5 }}>{label}</div>
-      <div style={{ fontSize:26, fontWeight:900, color: accent||bgColor?'white':'var(--c-accent)', letterSpacing:-1, lineHeight:1 }}>{value}</div>
-      {sub && <div style={{ fontSize:9, color: accent||bgColor?'rgba(255,255,255,0.55)':'var(--t-muted)', marginTop:4 }}>{sub}</div>}
+      <div className={`mp-kpi-label ${isColored ? 'mp-kpi-label--accent' : ''}`}>{label}</div>
+      <div className={`mp-kpi-value ${isColored ? 'mp-kpi-value--accent' : ''}`}>{value}</div>
+      {sub && <div className={`mp-kpi-sub ${isColored ? 'mp-kpi-sub--accent' : ''}`}>{sub}</div>}
     </div>
   )
 }
@@ -53,56 +39,53 @@ function KpiCard({ label, value, sub, accent, bgColor }) {
 function ProyectoModal({ p, onClose }) {
   if (!p) return null
   const estado = ESTADO_MAP[p.estado] ?? { label:p.estado, cls:'badge-gray', color:'#666' }
+  const avanceColor = p.avancePct>=70?'#30693B':p.avancePct>=40?'#D65830':'#3E5D9D'
 
   const Row = ({ label, value }) => value ? (
-    <div style={{ display:'flex', gap:10, padding:'7px 0', borderBottom:'1px solid var(--c-border)' }}>
-      <span style={{ fontSize:9.5, fontWeight:700, textTransform:'uppercase', letterSpacing:.6, color:'var(--t-muted)', minWidth:140, flexShrink:0 }}>{label}</span>
-      <span style={{ fontSize:11, color:'var(--t-primary)' }}>{value}</span>
+    <div className="mp-detail-row">
+      <span className="mp-detail-lbl">{label}</span>
+      <span className="mp-detail-val">{value}</span>
     </div>
   ) : null
 
   return (
-    <div style={{ position:'fixed', inset:0, zIndex:500, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(0,0,0,0.55)', backdropFilter:'blur(4px)', padding:20 }}
-      onClick={onClose}>
-      <div style={{ background:'var(--c-surface)', borderRadius:20, padding:28, maxWidth:580, width:'100%', boxShadow:'var(--s-xl)', border:'1px solid var(--c-border)', maxHeight:'90vh', overflowY:'auto' }}
-        onClick={e => e.stopPropagation()}>
+    <div className="mp-modal-overlay" onClick={onClose}>
+      <div className="mp-modal" onClick={e => e.stopPropagation()}>
 
         {/* Header */}
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:20 }}>
-          <div style={{ flex:1 }}>
-            <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:8, flexWrap:'wrap' }}>
-              <span style={{ padding:'2px 8px', borderRadius:99, fontSize:8.5, fontWeight:800, background:`${p.oficina.color}18`, color:p.oficina.color, border:`1px solid ${p.oficina.color}40` }}>
+        <div className="mp-modal-hdr">
+          <div className="mp-modal-title-wrap">
+            <div className="mp-modal-tags">
+              <span className="mp-oficina-tag" style={{ background:`${p.oficina.color}18`, color:p.oficina.color, border:`1px solid ${p.oficina.color}40` }}>
                 {p.oficina.nombre}
               </span>
               {p.programa && p.programa !== '—' && (
-                <span style={{ padding:'2px 8px', borderRadius:99, fontSize:8.5, fontWeight:700, background:'var(--c-surface2)', color:'var(--t-muted)', border:'1px solid var(--c-border)' }}>
-                  {p.programa}
-                </span>
+                <span className="badge badge-gray">{p.programa}</span>
               )}
               <span className={`badge ${estado.cls}`}>{estado.label}</span>
             </div>
-            <h2 style={{ fontSize:18, fontWeight:900, letterSpacing:-.4, marginBottom:4 }}>{p.nombre}</h2>
-            {p.descripcion && <p style={{ fontSize:11, color:'var(--t-secondary)', lineHeight:1.6 }}>{p.descripcion}</p>}
+            <h2 className="mp-modal-title">{p.nombre}</h2>
+            {p.descripcion && <p className="mp-modal-desc">{p.descripcion}</p>}
           </div>
-          <button onClick={onClose} style={{ width:30, height:30, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', background:'var(--c-surface2)', border:'none', cursor:'pointer', flexShrink:0, marginLeft:12 }}>
+          <button onClick={onClose} className="mp-modal-close">
             <X size={14} />
           </button>
         </div>
 
         {/* Avance */}
-        <div style={{ marginBottom:20, padding:'14px 16px', background:'var(--c-surface2)', borderRadius:12, border:'1px solid var(--c-border)' }}>
-          <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
-            <span style={{ fontSize:9.5, fontWeight:700, textTransform:'uppercase', letterSpacing:.6, color:'var(--t-muted)' }}>% Avance</span>
-            <span style={{ fontSize:22, fontWeight:900, color: p.avancePct>=70?'#30693B':p.avancePct>=40?'#D65830':'#3E5D9D' }}>{p.avancePct}%</span>
+        <div className="mp-modal-avance">
+          <div className="mp-modal-avance-hdr">
+            <span className="mp-modal-avance-lbl">% Avance</span>
+            <span style={{ fontSize:22, fontWeight:900, color:avanceColor }}>{p.avancePct}%</span>
           </div>
-          <div style={{ height:8, borderRadius:99, background:'var(--c-border)', overflow:'hidden' }}>
-            <div style={{ height:'100%', width:`${p.avancePct}%`, background: p.avancePct>=70?'#30693B':p.avancePct>=40?'#D65830':'#3E5D9D', borderRadius:99, transition:'width .5s' }} />
+          <div className="mp-modal-bar">
+            <div className="mp-modal-bar-fill" style={{ width:`${p.avancePct}%`, background:avanceColor }} />
           </div>
-          {p.estadoDetalle && <p style={{ fontSize:9.5, color:'var(--t-secondary)', marginTop:6, fontStyle:'italic' }}>📋 {p.estadoDetalle}</p>}
+          {p.estadoDetalle && <p className="mp-modal-estado-det">📋 {p.estadoDetalle}</p>}
         </div>
 
         {/* Detalles */}
-        <div>
+        <div className="mp-modal-rows">
           <Row label="Oficina de proyectos"  value={p.oficina.nombre} />
           <Row label="Programa"              value={p.programa !== '—' ? p.programa : null} />
           <Row label="Tipo"                  value={p.tipoProyecto} />
@@ -116,9 +99,9 @@ function ProyectoModal({ p, onClose }) {
           <Row label="Costo ejecutado (USD)" value={p.costoEjecAnual ? `$${Number(p.costoEjecAnual).toLocaleString('es-CO')}` : null} />
           <Row label="Horas invertidas"      value={fmtMins(p.minInvertidos)} />
           {p.observaciones && (
-            <div style={{ padding:'10px 0', borderBottom:'1px solid var(--c-border)' }}>
-              <div style={{ fontSize:9.5, fontWeight:700, textTransform:'uppercase', letterSpacing:.6, color:'var(--t-muted)', marginBottom:5 }}>Observaciones</div>
-              <p style={{ fontSize:11, color:'var(--t-primary)', lineHeight:1.6 }}>{p.observaciones}</p>
+            <div className="mp-obs-wrap">
+              <div className="mp-obs-lbl">Observaciones</div>
+              <p className="mp-obs-text">{p.observaciones}</p>
             </div>
           )}
         </div>
@@ -131,32 +114,32 @@ function ProyectoModal({ p, onClose }) {
 function ProyectoCard({ p, onDoubleClick }) {
   const [hov, setHov] = useState(false)
   const estado = ESTADO_MAP[p.estado] ?? { label:p.estado, cls:'badge-gray', color:'#666' }
+  const avanceColor = p.avancePct>=70?'#30693B':p.avancePct>=40?'#D65830':'#3E5D9D'
 
   return (
     <div
+      className="mp-card"
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       onDoubleClick={() => onDoubleClick(p)}
       title="Doble clic para ver detalle"
       style={{
-        background:'var(--c-surface)', borderRadius:14, padding:'18px 20px',
-        border:`1px solid ${hov ? p.oficina.color : 'var(--c-border)'}`,
+        border: `1px solid ${hov ? p.oficina.color : 'var(--c-border)'}`,
         boxShadow: hov ? `0 6px 20px ${p.oficina.color}25` : 'none',
         transform: hov ? 'translateY(-2px)' : 'none',
-        transition:'all .2s cubic-bezier(.34,1.56,.64,1)', cursor:'pointer',
       }}
     >
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
-        <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:5, flexWrap:'wrap' }}>
-            <span style={{ padding:'2px 8px', borderRadius:99, fontSize:8.5, fontWeight:800, background:`${p.oficina.color}18`, color:p.oficina.color, border:`1px solid ${p.oficina.color}40` }}>
+      <div className="mp-card-hdr">
+        <div className="mp-card-body">
+          <div className="mp-card-tags">
+            <span className="mp-oficina-tag" style={{ background:`${p.oficina.color}18`, color:p.oficina.color, border:`1px solid ${p.oficina.color}40` }}>
               {p.oficina.nombre}
             </span>
-            <span style={{ fontSize:8.5, color:'var(--t-muted)', textTransform:'uppercase', letterSpacing:.4 }}>{p.tipo==='estrategico'?'PROY':'OPE'}</span>
+            <span className="mp-tipo-tag">{p.tipo==='estrategico'?'PROY':'OPE'}</span>
           </div>
-          <h3 style={{ fontSize:14, fontWeight:800, letterSpacing:-.3, marginBottom:4 }}>{p.nombre}</h3>
-          {p.descripcion && <p style={{ fontSize:10.5, color:'var(--t-secondary)', lineHeight:1.5, marginBottom:6, overflow:'hidden', display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical' }}>{p.descripcion}</p>}
-          <div style={{ display:'flex', gap:10, flexWrap:'wrap', fontSize:9.5, color:'var(--t-muted)' }}>
+          <h3 className="mp-card-title">{p.nombre}</h3>
+          {p.descripcion && <p className="mp-card-desc">{p.descripcion}</p>}
+          <div className="mp-card-meta">
             {p.lider && p.lider!=='—' && <span>👤 {p.lider}</span>}
             {p.fechaInicio && p.fechaFin && <span>📅 {p.fechaInicio} → {p.fechaFin}</span>}
           </div>
@@ -164,25 +147,25 @@ function ProyectoCard({ p, onDoubleClick }) {
         <span className={`badge ${estado.cls}`} style={{ flexShrink:0, marginLeft:8 }}>{estado.label}</span>
       </div>
 
-      <div style={{ marginBottom:10 }}>
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
-          <span style={{ fontSize:9.5, fontWeight:700, color:'var(--t-muted)', textTransform:'uppercase', letterSpacing:.6 }}>Avance</span>
-          <span style={{ fontSize:13, fontWeight:900, color:p.avancePct>=70?'#30693B':p.avancePct>=40?'#D65830':'#3E5D9D' }}>{p.avancePct}%</span>
+      <div className="mp-avance-wrap">
+        <div className="mp-avance-hdr">
+          <span className="mp-avance-lbl">Avance</span>
+          <span style={{ fontSize:13, fontWeight:900, color:avanceColor }}>{p.avancePct}%</span>
         </div>
-        <div style={{ height:6, borderRadius:99, background:'var(--c-border)', overflow:'hidden' }}>
-          <div style={{ height:'100%', width:`${p.avancePct}%`, background:p.avancePct>=70?'#30693B':p.avancePct>=40?'#D65830':'#3E5D9D', borderRadius:99, transition:'width .5s' }} />
+        <div className="mp-bar">
+          <div className="mp-bar-fill" style={{ width:`${p.avancePct}%`, background:avanceColor }} />
         </div>
       </div>
 
-      {p.estadoDetalle && <div style={{ fontSize:9.5, color:'var(--t-secondary)', fontStyle:'italic', marginBottom:10 }}>📋 {p.estadoDetalle}</div>}
+      {p.estadoDetalle && <div className="mp-estado-det">📋 {p.estadoDetalle}</div>}
 
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', paddingTop:10, borderTop:'1px solid var(--c-border)' }}>
-        <div style={{ display:'flex', alignItems:'center', gap:5 }}>
+      <div className="mp-card-footer">
+        <div className="mp-time-wrap">
           <Clock size={11} style={{ color:'var(--c-accent)' }} />
-          <span style={{ fontSize:10.5, fontWeight:700, color:'var(--c-accent)' }}>{fmtMins(p.minInvertidos)}</span>
-          <span style={{ fontSize:9, color:'var(--t-muted)' }}>invertidas</span>
+          <span className="mp-time-val">{fmtMins(p.minInvertidos)}</span>
+          <span className="mp-time-lbl">invertidas</span>
         </div>
-        <span style={{ fontSize:8.5, color:'var(--t-muted)', opacity: hov?1:0, transition:'opacity .15s' }}>Doble clic para ver detalle</span>
+        <span className="mp-hint" style={{ opacity: hov ? 1 : 0 }}>Doble clic para ver detalle</span>
       </div>
     </div>
   )
@@ -221,13 +204,13 @@ export default function MisProyectos() {
       </div>
 
       {/* KPIs */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:10, marginBottom:16 }}>
-        <KpiCard accent   label="Total"          value={kpis.total}      sub="Proyectos / Iniciativas" />
+      <div className="mp-kpi-grid">
+        <KpiCard accent    label="Total"          value={kpis.total}      sub="Proyectos / Iniciativas" />
         <KpiCard bgColor="#30693B" label="En ejecución"  value={kpis.ejecucion}  sub="Activos" />
         <KpiCard bgColor="#D65830" label="Sin iniciar"   value={kpis.sinIniciar} sub="Pendientes" />
         <KpiCard bgColor="#992C26" label="Suspendidos"   value={kpis.suspendido} sub="En pausa" />
         <KpiCard bgColor="#666666" label="Cerrados"      value={kpis.cerrado}    sub="Finalizados" />
-        <KpiCard          label="Avance prom."  value={`${kpis.avanceProm}%`} sub="Global" />
+        <KpiCard           label="Avance prom."  value={`${kpis.avanceProm}%`} sub="Global" />
       </div>
 
       {proyectos.length === 0 ? (
@@ -236,7 +219,7 @@ export default function MisProyectos() {
           <p>No tienes proyectos asignados en esta oficina</p>
         </div>
       ) : (
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(340px,1fr))', gap:12 }}>
+        <div className="mp-cards-grid">
           {proyectos.map(p => (
             <ProyectoCard key={p.id} p={p} onDoubleClick={setModal} />
           ))}

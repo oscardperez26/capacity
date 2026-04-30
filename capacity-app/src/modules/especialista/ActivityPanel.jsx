@@ -1,20 +1,15 @@
-/**
- * ActivityPanel.jsx — Sesión C (layout corregido)
- * Texto completo, scroll correcto, nombres sin recorte.
- */
-
-import { useState, useMemo }  from 'react'
+import './ActivityPanel.css'
+import { useState, useMemo } from 'react'
 import { ChevronDown, ChevronUp, Plus, Star } from 'lucide-react'
-import { CATS, MODEL_BADGE }  from '../../data/categories'
-import { useStore }           from '../../context/StoreContext'
-import Button                 from '../../components/ui/Button'
+import { CATS, MODEL_BADGE } from '../../data/categories'
+import { useStore } from '../../context/StoreContext'
+import Button from '../../components/ui/Button'
 
 export default function ActivityPanel({ onAddOverride } = {}) {
   const { state, dispatch } = useStore()
   const favorites = state.favorites ?? []
-
-  const [expanded,  setExpanded]  = useState(null)
-  const [showFavs,  setShowFavs]  = useState(false)
+  const [expanded, setExpanded] = useState(null)
+  const [showFavs, setShowFavs] = useState(false)
 
   const onToggleFav = (id) => dispatch({ type: 'TOGGLE_FAV', id: String(id) })
 
@@ -40,13 +35,10 @@ export default function ActivityPanel({ onAddOverride } = {}) {
     favorites.includes(String(sub.id)) || favorites.includes(String(sub.dbId))
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-
+    <div className="ap-container">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, flexShrink: 0 }}>
-        <span style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.4, color: 'var(--t-muted)' }}>
-          Actividades
-        </span>
+      <div className="ap-header">
+        <span className="ap-title">Actividades</span>
         <Button
           className={`btn-xs ${showFavs ? 'btn-warn' : 'btn-ghost'}`}
           onClick={() => setShowFavs(!showFavs)}
@@ -58,26 +50,23 @@ export default function ActivityPanel({ onAddOverride } = {}) {
 
       {/* Favoritos */}
       {showFavs ? (
-        <div style={{ overflowY: 'auto', flex: 1 }}>
+        <div className="ap-scroll">
           {allFavSubs.length === 0 ? (
-            <div style={{ padding: '18px 8px', textAlign: 'center', color: 'var(--t-muted)', fontSize: 11 }}>
+            <div className="ap-empty-msg">
               Marca actividades con ⭐ para acceso rápido
             </div>
           ) : (
             allFavSubs.map(s => (
               <div
                 key={s.id}
-                className="cat-sub-row"
+                className="cat-sub-row ap-fav-item"
                 onClick={() => handleAdd(s, s.cat)}
-                style={{ background: 'var(--c-accent3)', borderRadius: 8, border: '1px solid rgba(51,40,154,0.14)', marginBottom: 3 }}
               >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ fontSize: 10.5, fontWeight: 600, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {s.label}
-                  </span>
-                  <span className={`badge ${MODEL_BADGE[s.m]}`} style={{ fontSize: 7.5, marginTop: 2 }}>{s.m}</span>
+                <div className="ap-fav-inner">
+                  <span className="ap-fav-label">{s.label}</span>
+                  <span className={`badge ${MODEL_BADGE[s.m]} ap-fav-badge`}>{s.m}</span>
                 </div>
-                <div className="cat-sub-actions" style={{ opacity: 1, flexShrink: 0 }}>
+                <div className="cat-sub-actions ap-fav-actions">
                   <button className="star-btn on" onClick={e => { e.stopPropagation(); onToggleFav(s.id) }}>
                     <Star size={10} fill="#D97706" />
                   </button>
@@ -89,27 +78,24 @@ export default function ActivityPanel({ onAddOverride } = {}) {
         </div>
       ) : (
         /* Todas las categorías */
-        <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <div className="ap-cat-list">
           {Object.entries(CATS).map(([k, cat]) => (
-            <div key={k} style={{ borderRadius: 9, overflow: 'hidden', border: '1px solid var(--c-border)', flexShrink: 0 }}>
-
+            <div key={k} className="ap-cat-item">
               {/* Header de categoría */}
               <button
                 className="cat-hdr-btn"
                 style={{ background: cat.color }}
                 onClick={() => setExpanded(expanded === cat.id ? null : cat.id)}
               >
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, textAlign: 'left' }}>
-                  {cat.label}
-                </span>
-                <span style={{ flexShrink: 0, marginLeft: 4 }}>
+                <span className="ap-cat-hdr-text">{cat.label }</span>
+                <span className="ap-cat-hdr-icon">
                   {expanded === cat.id ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                 </span>
               </button>
 
               {/* Subcategorías */}
               {expanded === cat.id && (
-                <div style={{ background: 'var(--c-surface)' }}>
+                <div className="ap-cat-body">
                   {cat.subs.map(sub => (
                     <div
                       key={sub.id}
@@ -117,16 +103,11 @@ export default function ActivityPanel({ onAddOverride } = {}) {
                       onClick={() => handleAdd(sub, cat)}
                       style={{ alignItems: 'flex-start', paddingTop: 8, paddingBottom: 8 }}
                     >
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        {/* Nombre completo — sin truncar */}
-                        <span style={{ fontSize: 10.5, lineHeight: 1.4, display: 'block', wordBreak: 'break-word' }}>
-                          {sub.label}
-                        </span>
-                        <span className={`badge ${MODEL_BADGE[sub.m]}`} style={{ fontSize: 7.5, marginTop: 3 }}>
-                          {sub.m}
-                        </span>
+                      <div className="ap-sub-inner">
+                        <span className="ap-sub-label">{sub.label}</span>
+                        <span className={`badge ${MODEL_BADGE[sub.m]} ap-sub-badge`}>{sub.m}</span>
                       </div>
-                      <div className="cat-sub-actions" style={{ flexShrink: 0, marginTop: 2 }}>
+                      <div className="cat-sub-actions ap-sub-actions">
                         <button
                           className={`star-btn ${isFav(sub) ? 'on' : ''}`}
                           onClick={e => { e.stopPropagation(); onToggleFav(sub.id) }}

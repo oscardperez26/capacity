@@ -1,8 +1,4 @@
-/**
- * LoginPage.jsx — Fase 4 (corregido)
- * Login directo contra la API sin doble validación.
- */
-
+import './LoginPage.css'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, ArrowLeft, Mail } from 'lucide-react'
@@ -16,29 +12,27 @@ function ArtBg() {
       <div className="art-blob" style={{ width: 260, height: 260, bottom: '-10%', left: '-8%', background: 'rgba(214,88,48,0.28)' }} />
       <div className="art-blob" style={{ width: 180, height: 180, top: '42%', left: '28%', background: 'rgba(48,105,59,0.20)' }} />
       <div className="login-art-content">
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, justifyContent: 'center', height: 90, marginBottom: 22 }}>
+        <div className="lp-art-bars">
           {[0.38, 0.62, 0.50, 1, 0.70, 0.88, 0.42, 0.78].map((h, i) => (
             <motion.div key={i}
+              className="lp-art-bar"
               initial={{ height: 0 }}
               animate={{ height: `${h * 100}%` }}
               transition={{ delay: i * 0.08, duration: 0.7, ease: [0.34, 1.56, 0.64, 1] }}
               style={{
-                width: 18, borderRadius: '5px 5px 0 0',
                 background: i === 3 ? '#D65830' : i === 7 ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)',
                 boxShadow: i === 3 ? '0 0 18px rgba(214,88,48,0.5)' : '',
               }}
             />
           ))}
         </div>
-        <h2 style={{ color: 'white', fontSize: 22, fontWeight: 900, letterSpacing: -.4, marginBottom: 7 }}>
-          Gestión de Capacidad
-        </h2>
-        <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11.5, lineHeight: 1.7, maxWidth: 270 }}>
+        <h2 className="lp-art-title">Gestión de Capacidad</h2>
+        <p className="lp-art-desc">
           Plataforma ITIL 4 para análisis y control operativo del área de Tecnología Permoda.
         </p>
-        <div style={{ display: 'flex', gap: 7, justifyContent: 'center', marginTop: 20, flexWrap: 'wrap' }}>
+        <div className="lp-art-models">
           {['RUN', 'BUILD', 'ADMIN', 'GROW', 'OFF'].map(m => (
-            <span key={m} style={{ padding: '3px 9px', borderRadius: 99, background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.6)', fontSize: 8.5, fontWeight: 700, letterSpacing: .9 }}>{m}</span>
+            <span key={m} className="lp-model-tag">{m}</span>
           ))}
         </div>
       </div>
@@ -60,7 +54,6 @@ function LoginForm({ onForgot }) {
     e.preventDefault()
     setError('')
 
-    // Validaciones básicas en cliente
     if (!email.trim())    { setError('El correo es obligatorio');    return }
     if (!password.trim()) { setError('La contraseña es obligatoria'); return }
     if (!email.endsWith('@permoda.com.co')) {
@@ -74,19 +67,12 @@ function LoginForm({ onForgot }) {
       if (!result || !result.success) {
         setError(result?.error ?? 'Credenciales inválidas')
       }
-      // Si success=true, AuthContext ya actualizó el user y App redirige
     } catch (err) {
       console.error('Login error:', err)
       setError('Error de conexión con el servidor')
     } finally {
       setLoading(false)
     }
-  }
-
-  const fillDemo = (demoEmail) => {
-    setEmail(demoEmail)
-    setPassword('demo1234')
-    setError('')
   }
 
   return (
@@ -97,21 +83,17 @@ function LoginForm({ onForgot }) {
       transition={{ duration: 0.4 }}
     >
       {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 28 }}>
-        <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#33289A,#4554A1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 18, color: 'white' }}>C</div>
-        <div style={{ width: 1, height: 20, background: 'var(--c-border2)', margin: '0 4px' }} />
+      <div className="lp-logo">
+        <div className="lp-logo-icon">C</div>
+        <div className="lp-logo-div" />
         <div>
-          <div style={{ fontSize: 14, fontWeight: 800, letterSpacing: -.2, color: 'var(--c-accent)' }}>Capacity</div>
-          <div style={{ fontSize: 7.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.8, color: 'var(--t-muted)' }}>
-            Gestión de carga laboral
-          </div>
+          <div className="lp-logo-name">Capacity</div>
+          <div className="lp-logo-sub">Gestión de carga laboral</div>
         </div>
       </div>
 
-      <h1 style={{ fontSize: 22, fontWeight: 900, letterSpacing: -.4, marginBottom: 3 }}>Bienvenido de nuevo</h1>
-      <p style={{ fontSize: 11.5, color: 'var(--t-muted)', marginBottom: 24 }}>
-        Ingresa con tu cuenta corporativa Permoda
-      </p>
+      <h1 className="lp-title">Bienvenido de nuevo</h1>
+      <p className="lp-subtitle">Ingresa con tu cuenta corporativa Permoda</p>
 
       <form onSubmit={handleSubmit} noValidate>
         {/* Email */}
@@ -147,23 +129,16 @@ function LoginForm({ onForgot }) {
               onClick={() => setShowPass(p => !p)}
               tabIndex={-1}
             >
-              {showPass
-                ? <EyeOff size={15} />
-                : <Eye    size={15} />
-              }
+              {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
           </div>
         </div>
 
-        {/* Error */}
-        {error && (
-          <p className="form-err">{error}</p>
-        )}
+        {error && <p className="form-err">{error}</p>}
 
-        {/* Submit */}
         <button type="submit" className="login-submit" disabled={loading}>
           {loading
-            ? <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            ? <span className="lp-spinner">
                 <svg width={14} height={14} viewBox="0 0 24 24" fill="none" style={{ animation: 'spin 0.8s linear infinite' }}>
                   <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
                   <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="40 60"/>
@@ -175,18 +150,11 @@ function LoginForm({ onForgot }) {
         </button>
       </form>
 
-      {/* Forgot */}
-      <p style={{ textAlign: 'center', marginTop: 12, fontSize: 10.5, color: 'var(--t-muted)' }}>
-        <button
-          type="button"
-          onClick={onForgot}
-          style={{ color: 'var(--c-accent)', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}
-        >
+      <p className="lp-forgot">
+        <button type="button" className="lp-forgot-btn" onClick={onForgot}>
           ¿Olvidaste tu contraseña?
         </button>
       </p>
-
-
     </motion.div>
   )
 }
@@ -213,15 +181,15 @@ function RecoverForm({ onBack, onSent }) {
 
   return (
     <div className="login-panel">
-      <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: 5, color: 'var(--t-muted)', fontSize: 10.5, fontWeight: 700, marginBottom: 20, background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: .4 }}>
+      <button onClick={onBack} className="lp-back-btn">
         <ArrowLeft size={13} /> Volver al inicio
       </button>
       <div className="recover-wrap">
-        <div style={{ width: 50, height: 50, borderRadius: 14, background: 'var(--c-accent3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+        <div className="lp-recover-icon">
           <Mail size={24} style={{ color: 'var(--c-accent)' }} />
         </div>
-        <h2 style={{ fontSize: 20, fontWeight: 900, letterSpacing: -.4, marginBottom: 6 }}>Recuperar contraseña</h2>
-        <p style={{ fontSize: 11.5, color: 'var(--t-secondary)', marginBottom: 20, lineHeight: 1.7 }}>
+        <h2 className="lp-recover-title">Recuperar contraseña</h2>
+        <p className="lp-recover-desc">
           Ingresa tu correo corporativo para recibir instrucciones.
         </p>
         <form onSubmit={handleSubmit} noValidate>
@@ -253,14 +221,14 @@ export default function LoginPage() {
 
   if (step === 'sent') return (
     <div className="login-screen">
-      <div className="login-panel" style={{ alignItems: 'center', textAlign: 'center' }}>
-        <div className="recover-wrap" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ fontSize: 55, marginBottom: 14 }}>✉️</div>
-          <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 7 }}>¡Correo enviado!</h2>
-          <p style={{ fontSize: 11.5, color: 'var(--t-secondary)', lineHeight: 1.7, maxWidth: 260, marginBottom: 22 }}>
+      <div className="login-panel lp-sent-panel">
+        <div className="recover-wrap lp-sent-recover">
+          <div className="lp-sent-emoji">✉️</div>
+          <h2 className="lp-sent-title">¡Correo enviado!</h2>
+          <p className="lp-sent-desc">
             Enviamos instrucciones a <strong style={{ color: 'var(--c-accent)' }}>{sentTo}</strong>.
           </p>
-          <button className="login-submit" style={{ maxWidth: 280 }} onClick={() => { setStep('login'); setSentTo('') }}>
+          <button className="login-submit lp-sent-submit" onClick={() => { setStep('login'); setSentTo('') }}>
             Volver al inicio de sesión
           </button>
         </div>

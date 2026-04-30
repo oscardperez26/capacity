@@ -1,0 +1,103 @@
+/* Aprobaciones — gestión de jornadas del equipo */
+
+/* Page header */
+.ap-page-hdr  { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+.ap-title     { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; }
+.ap-subtitle  { font-size: 13px; color: var(--t-muted); margin-top: 3px; }
+.ap-refresh-btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--c-border); background: var(--c-surface); font-size: 13px; font-weight: 600; cursor: pointer; color: var(--t-secondary); }
+
+/* Tabs */
+.ap-tabs      { display: flex; gap: 4px; margin-bottom: 20px; background: rgba(51,40,154,.06); border-radius: 12px; padding: 4px; width: fit-content; }
+.ap-tab       { display: flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 9px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; transition: all .15s; }
+.ap-tab--on   { background: white; color: var(--c-accent); box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+.ap-tab--off  { background: transparent; color: var(--t-secondary); box-shadow: none; }
+.ap-tab-count { padding: 1px 6px; border-radius: 99px; background: var(--brand-orange); color: white; font-size: 10px; font-weight: 800; }
+
+/* Modal rechazo */
+.ap-modal-overlay { position: fixed; inset: 0; z-index: 600; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.45); backdrop-filter: blur(4px); }
+.ap-modal         { background: var(--c-surface); border-radius: 16px; padding: 24px; max-width: 420px; width: 100%; margin: 0 16px; box-shadow: var(--s-xl); border: 1px solid var(--c-border); }
+.ap-modal-title   { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+.ap-modal-sub     { font-size: 12px; color: var(--t-muted); margin-bottom: 14px; }
+.ap-modal-textarea{ width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--c-border2); background: var(--c-surface2); font-size: 13px; resize: vertical; font-family: inherit; color: var(--t-primary); }
+.ap-modal-btns    { display: flex; gap: 10px; margin-top: 12px; }
+.ap-modal-cancel  { flex: 1; padding: 9px; border-radius: 9px; border: 1px solid var(--c-border); background: var(--c-surface2); font-size: 13px; font-weight: 700; cursor: pointer; color: var(--t-secondary); }
+.ap-modal-confirm { flex: 1; padding: 9px; border-radius: 9px; border: none; background: #992C26; color: white; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+/* Botones acción icono ✅ ❌ */
+.ap-ico-btns   { display: flex; gap: 4px; flex-shrink: 0; }
+.ap-ico-reject { width: 28px; height: 28px; border-radius: 7px; border: 1px solid rgba(153,44,38,.25); background: rgba(153,44,38,.07); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.ap-ico-approve{ width: 28px; height: 28px; border-radius: 7px; border: none; background: rgba(48,105,59,.12); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.ap-aprob-todo { display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px; border: none; background: #30693B; color: white; font-size: 11.5px; font-weight: 700; flex-shrink: 0; }
+
+/* Acordeón día */
+.ap-dia-card  { border-radius: 9px; border: 1px solid var(--c-border); overflow: hidden; background: var(--c-surface); }
+.ap-dia-hdr   { display: flex; align-items: center; gap: 10px; padding: 8px 14px; cursor: pointer; }
+.ap-dia-label { font-size: 12.5px; font-weight: 700; min-width: 52px; }
+.ap-dia-count { font-size: 11px; color: var(--t-muted); flex: 1; }
+.ap-dia-models{ display: flex; gap: 5px; }
+.ap-dia-mins  { font-size: 12.5px; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin-left: 8px; }
+.ap-dia-body  { padding: 8px 14px; background: var(--c-surface2); border-top: 1px solid var(--c-border); display: flex; flex-direction: column; gap: 4px; }
+.ap-act-row   { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 7px; background: var(--c-surface); border: 1px solid var(--c-border); }
+.ap-act-model { padding: 1px 6px; border-radius: 99px; font-size: 9px; font-weight: 800; }
+.ap-act-name  { font-size: 11.5px; font-weight: 600; flex: 1; }
+.ap-act-cat   { font-size: 10.5px; color: var(--t-muted); }
+.ap-act-desc  { font-size: 10px; color: var(--t-secondary); font-style: italic; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ap-act-mins  { font-size: 11px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--t-secondary); flex-shrink: 0; }
+
+/* Acordeón semana */
+.ap-sem-card  { border-radius: 10px; border: 1px solid var(--c-border); overflow: hidden; margin-bottom: 5px; }
+.ap-sem-hdr   { display: flex; align-items: center; gap: 10px; padding: 9px 14px; cursor: pointer; }
+.ap-sem-label { font-size: 12.5px; font-weight: 700; }
+.ap-sem-count { font-size: 11px; color: var(--t-muted); flex: 1; }
+.ap-sem-mins  { font-size: 12.5px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+.ap-sem-body  { padding: 7px 14px 10px; background: var(--c-surface2); border-top: 1px solid var(--c-border); display: flex; flex-direction: column; gap: 5px; }
+
+/* Acordeón sprint */
+.ap-sp-card   { border-radius: 11px; border: 1px solid var(--c-border); overflow: hidden; margin-bottom: 7px; }
+.ap-sp-hdr    { display: flex; align-items: center; gap: 10px; padding: 10px 16px; cursor: pointer; }
+.ap-sp-label  { font-size: 13.5px; font-weight: 800; }
+.ap-sp-count  { font-size: 11px; color: var(--t-muted); flex: 1; }
+.ap-sp-mins   { font-size: 13.5px; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
+.ap-sp-body   { padding: 8px 14px 12px; background: var(--c-surface2); border-top: 1px solid var(--c-border); }
+
+/* Tarjeta especialista */
+.ap-esp-card  { border-radius: 14px; border: 1px solid var(--c-border); overflow: hidden; transition: box-shadow .2s; background: var(--c-surface); }
+.ap-esp-hdr   { display: flex; align-items: center; gap: 14px; padding: 14px 20px; cursor: pointer; }
+.ap-esp-name  { font-size: 15px; font-weight: 800; }
+.ap-esp-role  { font-size: 11.5px; color: var(--t-muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ap-esp-cap   { text-align: right; flex-shrink: 0; margin-right: 12px; }
+.ap-esp-pct   { font-size: 18px; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
+.ap-esp-meta  { font-size: 10.5px; color: var(--t-muted); }
+.ap-esp-actions { display: flex; align-items: center; gap: 8px; }
+.ap-esp-body  { padding: 12px 20px 16px; background: var(--c-surface2); border-top: 1px solid var(--c-border); }
+.ap-esp-chevron { cursor: pointer; padding: 4px; }
+
+/* Histórico */
+.ap-hist-list  { display: flex; flex-direction: column; gap: 12px; }
+.ap-hist-card  { border-radius: 14px; border: 1px solid var(--c-border); overflow: hidden; background: var(--c-surface); }
+.ap-hist-btn   { width: 100%; display: flex; align-items: center; gap: 12px; padding: 13px 18px; border: none; cursor: pointer; text-align: left; }
+.ap-hist-name  { font-size: 14px; font-weight: 800; }
+.ap-hist-role  { font-size: 11px; color: var(--t-muted); margin-top: 1px; }
+.ap-hist-count { font-size: 11.5px; color: var(--t-muted); margin-right: 8px; }
+.ap-hist-body  { border-top: 1px solid var(--c-border); padding: 10px 18px 14px; display: flex; flex-direction: column; gap: 8px; background: var(--c-surface2); }
+.ap-reg-card   { border-radius: 11px; border: 1px solid var(--c-border); background: var(--c-surface); overflow: hidden; }
+.ap-reg-hdr    { display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: var(--c-surface2); border-bottom: 1px solid var(--c-border); }
+.ap-reg-date   { font-size: 13px; font-weight: 700; }
+.ap-reg-sprint { font-size: 11px; color: var(--t-muted); flex: 1; }
+.ap-reg-mins   { font-size: 11px; color: var(--t-muted); font-family: 'JetBrains Mono', monospace; }
+.ap-timeline   { padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+.ap-tl-row     { display: flex; align-items: flex-start; gap: 10px; }
+.ap-tl-icon    { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+.ap-tl-body    { flex: 1; }
+.ap-tl-meta    { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ap-tl-by      { font-size: 11px; color: var(--t-muted); }
+.ap-tl-date    { font-size: 10px; color: var(--t-muted); margin-left: auto; }
+.ap-tl-comment { font-size: 11.5px; color: var(--t-secondary); margin-top: 4px; padding: 5px 9px; border-radius: 7px; font-style: italic; }
+
+/* Empty / load more */
+.ap-empty      { text-align: center; padding: 48px 0; }
+.ap-empty-text { font-size: 16px; font-weight: 700; color: var(--t-muted); }
+.ap-empty-sub  { font-size: 13px; color: var(--t-muted); margin-top: 4px; }
+.ap-hist-empty { text-align: center; padding: 32px 0; color: var(--t-muted); font-size: 14px; }
+.ap-load-more  { display: flex; justify-content: center; margin-top: 4px; }
+.ap-load-btn   { padding: 8px 22px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface); color: var(--t-muted); font-size: 13px; font-weight: 600; }

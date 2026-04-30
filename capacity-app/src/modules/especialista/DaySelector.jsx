@@ -1,3 +1,4 @@
+import './DaySelector.css'
 import { useStore } from '../../context/StoreContext'
 import { isFestivo } from '../../data/categories'
 import { CURRENT_WEEK } from '../../data/mockData'
@@ -10,9 +11,9 @@ export default function DaySelector() {
     <div className="day-sel">
       {CURRENT_WEEK.days.map(d => {
         const isFinalized = dayEntries[d.key]?.status === 'finalizado'
-        const hasData = !!(dayEntries[d.key]?.tasks?.length)
-        const isActive = activeDay === d.key
-        const festivo = isFestivo(d.date)
+        const hasData     = !!(dayEntries[d.key]?.tasks?.length)
+        const isActive    = activeDay === d.key
+        const festivo     = isFestivo(d.date)
 
         return (
           <button
@@ -25,30 +26,25 @@ export default function DaySelector() {
               festivo && !isActive ? 'festivo-day' : '',
             ].join(' ')}
             onClick={() => dispatch({ type: 'SET_DAY', day: d.key })}
-            style={{ position: 'relative', opacity: isFinalized ? 0.4 : 1 }}
+            style={{ opacity: isFinalized ? 0.4 : 1 }}
             title={festivo ? '🇨🇴 Día festivo Colombia' : undefined}
           >
             {d.isToday && !isActive && <span className="day-today-dot" />}
             <span>{d.short}</span>
             <span className="dn">{d.num}</span>
 
-            {/* Festivo marker */}
             {festivo && !isActive && (
-              <span style={{ position: 'absolute', bottom: 3, left: '50%', transform: 'translateX(-50%)', fontSize: 6, color: 'var(--brand-red)', fontWeight: 900 }}>CO</span>
+              <span className="ds-indicator ds-festivo-co">CO</span>
             )}
 
-            {/* Finalized check */}
             {!festivo && isFinalized && (
-              <span style={{ position: 'absolute', bottom: 3, left: '50%', transform: 'translateX(-50%)', fontSize: 7, color: isActive ? 'rgba(255,255,255,0.6)' : 'var(--c-success)' }}>✓</span>
+              <span className="ds-indicator ds-done-check"
+                style={{ color: isActive ? 'rgba(255,255,255,0.6)' : 'var(--c-success)' }}>✓</span>
             )}
 
-            {/* Has data dot */}
             {!festivo && !isFinalized && hasData && (
-              <span style={{
-                position: 'absolute', bottom: 3, left: '50%', transform: 'translateX(-50%)',
-                width: 4, height: 4, borderRadius: '50%',
-                background: isActive ? 'rgba(255,255,255,0.7)' : 'var(--brand-orange)',
-              }} />
+              <span className="ds-indicator ds-data-dot"
+                style={{ background: isActive ? 'rgba(255,255,255,0.7)' : 'var(--brand-orange)' }} />
             )}
           </button>
         )

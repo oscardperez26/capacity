@@ -1,0 +1,6 @@
+/* DaySelector — indicadores absolutos de estado en cada botón */
+
+.ds-indicator       { position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); }
+.ds-festivo-co      { font-size: 6px; color: var(--brand-red); font-weight: 900; }
+.ds-done-check      { font-size: 7px; }
+.ds-data-dot        { width: 4px; height: 4px; border-radius: 50%; display: block; }

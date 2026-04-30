@@ -1,3 +1,4 @@
+import './DashboardEquipo.css'
 import { useState } from 'react'
 import { Filter, X, Download } from 'lucide-react'
 import { AREAS_DATA, AREA_LOADS, ESP_LOADS } from '../../data/mockData'
@@ -39,7 +40,7 @@ export default function DashboardEquipo({ user }) {
           <h2 className="sec-title">Dashboard — {areaData?.label}</h2>
           <p className="sec-sub">Sprint 5 · {especialistas.length} colaboradores en tu área</p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="de-hdr-btns">
           <Button className={`btn-ghost btn-sm ${showFilters ? 'btn-outline-accent' : ''}`} onClick={() => setShowFilters(!showFilters)}>
             <Filter size={11} /> Filtros
           </Button>
@@ -89,12 +90,10 @@ export default function DashboardEquipo({ user }) {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
+      <div className="de-charts-grid">
         {/* Specialists load */}
         <div className="card" style={{ padding: 20 }}>
-          <h3 style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.4, color: 'var(--t-muted)', marginBottom: 14 }}>
-            Carga por Especialista
-          </h3>
+          <h3 className="de-section-hdr">Carga por Especialista</h3>
           {filtered.map(e => {
             const d = ESP_LOADS[e.id] ?? { load: 75, run: 60, build: 30, admin: 10, hours: '6.0' }
             return (
@@ -104,8 +103,8 @@ export default function DashboardEquipo({ user }) {
                     <span className="load-name">{e.name}</span>
                     <span className="load-area-tag">— {e.cargo}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 9, color: 'var(--t-muted)', fontFamily: 'JetBrains Mono, monospace' }}>{d.hours}h</span>
+                  <div className="de-esp-meta">
+                    <span className="de-esp-hrs">{d.hours}h</span>
                     <span className={`load-pct ${loadPctClass(d.load)}`}>{d.load}%</span>
                   </div>
                 </div>
@@ -113,7 +112,7 @@ export default function DashboardEquipo({ user }) {
                   <div className={`prog-fill ${d.load > 100 ? 'prog-danger' : d.load > 80 ? 'prog-warn' : 'prog-normal'}`}
                     style={{ width: `${Math.min(d.load, 100)}%` }} />
                 </div>
-                <div style={{ display: 'flex', gap: 8, marginTop: 5 }}>
+                <div className="de-model-pills">
                   {[{ l: 'RUN', v: d.run, c: 'var(--brand-blue)' }, { l: 'BUILD', v: d.build, c: 'var(--brand-green)' }, { l: 'ADMIN', v: d.admin, c: 'var(--brand-orange)' }].map(x => (
                     <span key={x.l} style={{ fontSize: 8.5, fontWeight: 700, color: x.c }}>{x.l}: {x.v}%</span>
                   ))}
@@ -128,14 +127,12 @@ export default function DashboardEquipo({ user }) {
 
         {/* Bar chart */}
         <div className="card" style={{ padding: 20 }}>
-          <h3 style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.4, color: 'var(--t-muted)', marginBottom: 12 }}>
-            Capacity por Cargo
-          </h3>
+          <h3 className="de-section-hdr">Capacity por Cargo</h3>
           <BarChart data={areasBar} />
-          <div style={{ height: 1, background: 'var(--c-border)', margin: '10px 0' }} />
-          <div style={{ background: 'var(--c-warn-bg)', border: '1px solid rgba(214,88,48,0.2)', borderRadius: 8, padding: '8px 11px' }}>
-            <p style={{ fontSize: 9.5, fontWeight: 700, color: 'var(--c-warn)' }}>⚡ Insights del área</p>
-            <p style={{ fontSize: 8.5, color: 'var(--t-muted)', marginTop: 3 }}>
+          <div className="de-hr" />
+          <div className="de-insight">
+            <p className="de-insight-title">⚡ Insights del área</p>
+            <p className="de-insight-body">
               {filtered.filter(e => (ESP_LOADS[e.id]?.load ?? 75) > 100).length} especialistas sobrecargados · {AREA_LOADS[areaKey]?.run ?? 65}% en RUN
             </p>
           </div>

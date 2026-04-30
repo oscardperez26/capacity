@@ -1,0 +1,45 @@
+services:
+
+  # ── Backend Node.js ───────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./capacity-backend
+      dockerfile: Dockerfile
+    container_name: capacity_backend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # permite llegar al SQL Server del host
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      DB_CLIENT: sqlserver
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-1433}
+      DB_NAME: ${DB_NAME:-capacity}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_POOL_MIN: 0
+      DB_POOL_MAX: ${DB_POOL_MAX:-10}
+      DB_ENCRYPT: ${DB_ENCRYPT:-true}
+      DB_TRUST_CERT: ${DB_TRUST_CERT:-true}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-8h}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-900000}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-100}
+      RATE_LIMIT_AUTH_MAX: ${RATE_LIMIT_AUTH_MAX:-10}
+      BCRYPT_ROUNDS: ${BCRYPT_ROUNDS:-12}
+    restart: unless-stopped
+
+  # ── Frontend React (nginx) ────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./capacity-app
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+    container_name: capacity_frontend
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

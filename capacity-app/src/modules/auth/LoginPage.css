@@ -1,0 +1,41 @@
+/* LoginPage — estilos complementarios (los globales están en index.css) */
+
+/* Arte lateral — gráfico de barras */
+.lp-art-bars  { display: flex; align-items: flex-end; gap: 6px; justify-content: center; height: 90px; margin-bottom: 22px; }
+.lp-art-bar   { width: 18px; border-radius: 5px 5px 0 0; }
+.lp-art-title { color: white; font-size: 22px; font-weight: 900; letter-spacing: -0.4px; margin-bottom: 7px; }
+.lp-art-desc  { color: rgba(255,255,255,0.55); font-size: 11.5px; line-height: 1.7; max-width: 270px; }
+.lp-art-models{ display: flex; gap: 7px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+.lp-model-tag { padding: 3px 9px; border-radius: 99px; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.6); font-size: 8.5px; font-weight: 700; letter-spacing: 0.9px; }
+
+/* Logo dentro del panel */
+.lp-logo      { display: flex; align-items: center; gap: 9px; margin-bottom: 28px; }
+.lp-logo-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg,#33289A,#4554A1); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; color: white; flex-shrink: 0; }
+.lp-logo-div  { width: 1px; height: 20px; background: var(--c-border2); margin: 0 4px; }
+.lp-logo-name { font-size: 14px; font-weight: 800; letter-spacing: -0.2px; color: var(--c-accent); }
+.lp-logo-sub  { font-size: 7.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.8px; color: var(--t-muted); }
+
+/* Títulos del panel */
+.lp-title     { font-size: 22px; font-weight: 900; letter-spacing: -0.4px; margin-bottom: 3px; }
+.lp-subtitle  { font-size: 11.5px; color: var(--t-muted); margin-bottom: 24px; }
+
+/* Spinner dentro del botón de submit */
+.lp-spinner   { display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+/* Olvidé contraseña */
+.lp-forgot    { text-align: center; margin-top: 12px; font-size: 10.5px; color: var(--t-muted); }
+.lp-forgot-btn{ color: var(--c-accent); font-weight: 700; background: none; border: none; cursor: pointer; }
+
+/* Recover form */
+.lp-back-btn  { display: flex; align-items: center; gap: 5px; color: var(--t-muted); font-size: 10.5px; font-weight: 700; margin-bottom: 20px; background: none; border: none; cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px; }
+.lp-recover-icon  { width: 50px; height: 50px; border-radius: 14px; background: var(--c-accent3); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+.lp-recover-title { font-size: 20px; font-weight: 900; letter-spacing: -0.4px; margin-bottom: 6px; }
+.lp-recover-desc  { font-size: 11.5px; color: var(--t-secondary); margin-bottom: 20px; line-height: 1.7; }
+
+/* Estado "correo enviado" */
+.lp-sent-panel   { align-items: center; text-align: center; }
+.lp-sent-recover { display: flex; flex-direction: column; align-items: center; }
+.lp-sent-emoji   { font-size: 55px; margin-bottom: 14px; }
+.lp-sent-title   { font-size: 20px; font-weight: 900; margin-bottom: 7px; }
+.lp-sent-desc    { font-size: 11.5px; color: var(--t-secondary); line-height: 1.7; max-width: 260px; margin-bottom: 22px; }
+.lp-sent-submit  { max-width: 280px; }
