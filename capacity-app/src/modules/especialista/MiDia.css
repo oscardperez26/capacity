@@ -9,6 +9,9 @@
 .mid-closed-banner { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: rgba(153,44,38,0.07); border: 1px solid rgba(153,44,38,0.25); border-radius: 10px; margin-bottom: 12px; font-size: 12.5px; font-weight: 700; color: #992C26; }
 .mid-festivo-banner{ display: flex; align-items: center; gap: 8px; padding: 7px 12px; background: rgba(153,44,38,0.07); border: 1px solid rgba(153,44,38,0.2); border-radius: 8px; margin-bottom: 10px; font-size: 11px; font-weight: 600; color: var(--brand-red); }
 .estado-banner     { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 9px; margin-bottom: 10px; font-size: 12px; font-weight: 600; }
+.mid-error-banner  { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: rgba(180,90,20,0.07); border: 1px solid rgba(180,90,20,0.25); border-radius: 10px; margin-bottom: 12px; font-size: 12.5px; font-weight: 600; color: #B45A14; }
+.mid-retry-btn     { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; padding: 4px 10px; border-radius: 6px; border: 1px solid currentColor; background: transparent; color: inherit; font-size: 11px; font-weight: 700; cursor: pointer; transition: opacity .15s; }
+.mid-retry-btn:hover { opacity: .7; }
 
 /* CapacityBar */
 .cap-bar-wrap   { margin-top: 10px; }

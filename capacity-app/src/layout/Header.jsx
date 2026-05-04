@@ -1,30 +1,9 @@
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Moon, Sun, LogOut } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
-import { useAuth } from '../context/AuthContext'
+import { useAuth }  from '../context/AuthContext'
 import NotificationBell from '../components/notifications/NotificationBell'
-import { ROLES } from '../data/mockData'
-
-const MENU = {
-  [ROLES.ESP]: [
-    { id: 'mi-dia',        label: 'Mi Día',       icon: 'home'    },
-    { id: 'mi-dashboard',  label: 'Mi Dashboard', icon: 'chart'   },
-    { id: 'mis-proyectos', label: 'Proyectos',    icon: 'folder'  },
-    { id: 'historico',     label: 'Histórico',    icon: 'history' },
-  ],
-  [ROLES.JEFE]: [
-    { id: 'jefe-mi-dia',    label: 'Mi Día',        icon: 'home'     },
-    { id: 'jefe-dashboard', label: 'Mi Dashboard',  icon: 'chart'    },
-    { id: 'mi-equipo',      label: 'Mi Equipo',     icon: 'team'     },
-    { id: 'aprobaciones',   label: 'Aprobaciones',  icon: 'shield'   },
-    { id: 'administracion', label: 'Administración',icon: 'settings' },
-  ],
-  [ROLES.ADMIN]: [
-    { id: 'global',       label: 'Global Capacity TI',  icon: 'pie' },
-    { id: 'portafolio',   label: 'Portafolio TI',         icon: 'folder' },
-    { id: 'config',       label: 'Administración',         icon: 'settings' },
-    { id: 'auditoria',    label: 'Auditoría',              icon: 'shield' },
-  ],
-}
+import { ROUTES } from '../router/routes'
 
 // Simple inline SVG icons for nav
 function NavIcon({ name, size = 20 }) {
@@ -47,10 +26,13 @@ function NavIcon({ name, size = 20 }) {
   )
 }
 
-export default function Header({ currentView, onNavigate }) {
-  const { dark, toggle } = useTheme()
-  const { user, logout } = useAuth()
-  const menu = MENU[user?.role] ?? []
+export default function Header() {
+  const { dark, toggle }  = useTheme()
+  const { user, logout }  = useAuth()
+  const navigate          = useNavigate()
+  const { pathname }      = useLocation()
+
+  const menu     = ROUTES[user?.role] ?? []
   const initials = user?.name?.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase() ?? '?'
 
   return (
@@ -77,9 +59,9 @@ export default function Header({ currentView, onNavigate }) {
         <nav className="header-nav">
           {menu.map(item => (
             <button
-              key={item.id}
-              className={`h-nav-item ${currentView === item.id ? 'active' : ''}`}
-              onClick={() => onNavigate(item.id)}
+              key={item.path}
+              className={`h-nav-item ${pathname === item.path ? 'active' : ''}`}
+              onClick={() => navigate(item.path)}
             >
               <NavIcon name={item.icon} size={16} />
               {item.label}
@@ -99,16 +81,15 @@ export default function Header({ currentView, onNavigate }) {
           <div className="h-actions-sep" />
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-            <div className="user-av" style={{ flexShrink:0 }}>{initials}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1, minWidth:0 }}>
-              <span className="user-name" style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'clamp(80px,12vw,160px)' }}>{user?.name}</span>
-              <span className="user-detail" style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'clamp(80px,14vw,180px)' }}>{user?.cargo} · {user?.areaLabel}</span>
+            <div className="user-av" style={{ flexShrink: 0 }}>{initials}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1, minWidth: 0 }}>
+              <span className="user-name" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 'clamp(80px,12vw,160px)' }}>{user?.name}</span>
+              <span className="user-detail" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 'clamp(80px,14vw,180px)' }}>{user?.cargo} · {user?.areaLabel}</span>
             </div>
           </div>
 
-          {/* Logout siempre visible */}
           <button className="logout-btn" onClick={logout} title="Cerrar sesión"
-            style={{ flexShrink:0, marginLeft:2 }}>
+            style={{ flexShrink: 0, marginLeft: 2 }}>
             <LogOut size={16} />
           </button>
         </div>

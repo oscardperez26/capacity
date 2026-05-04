@@ -8,7 +8,7 @@
 
 import './MiDia.css'
 import { useState, useMemo, useCallback, useEffect } from 'react'
-import { Calendar, Folder, CheckCircle, AlertCircle, Lock, Edit3 } from 'lucide-react'
+import { Calendar, Folder, CheckCircle, AlertCircle, Lock, Edit3, WifiOff, RefreshCw } from 'lucide-react'
 import { motion, AnimatePresence }   from 'framer-motion'
 import { useStore }                  from '../../context/StoreContext'
 import { useCapacity }               from '../../hooks/useCapacity'
@@ -85,6 +85,8 @@ export default function MiDia({ user }) {
     setActiveDay:  setSprintDay,
     periodoCerrado,
     loading:       sprintLoading,
+    fetchError,
+    reload:        reloadSprint,
   } = useSprintContext()
 
   const dayKey  = state.activeDay    ?? sprintActiveDay
@@ -114,7 +116,11 @@ export default function MiDia({ user }) {
     }
   }, [dispatch, setSprintDay])
 
-  const sinPeriodo    = !sprintLoading && (!sprint || periodoCerrado)
+  // true = backend confirmó que no hay sprint/periodo (no es error de red)
+  const sinPeriodo    = !sprintLoading && !fetchError && (!sprint || periodoCerrado)
+  // true = no pudimos contactar el servidor Y no tenemos sprint cacheado
+  const unknownSprint = !sprintLoading && fetchError && !sprint
+
   const mensajeCierre = sinPeriodo
     ? (!sprint
         ? 'No hay sprint activo. Contacta al administrador para configurar uno.'
@@ -123,8 +129,8 @@ export default function MiDia({ user }) {
 
   const entry    = dayKey ? (state.dayEntries[dayKey] ?? { status: 'borrador', tasks: [], habilitado: 0 }) : { status: 'borrador', tasks: [], habilitado: 0 }
   const { locked: _locked, editable: _editable, tag: _tag } = getEditState(entry)
-  const locked   = sinPeriodo || _locked
-  const editable = !sinPeriodo && _editable
+  const locked   = sinPeriodo || unknownSprint || _locked
+  const editable = !sinPeriodo && !unknownSprint && _editable
   const tag      = _tag
   const tasks    = entry.tasks ?? []
   const { total } = useCapacity(tasks)
@@ -258,6 +264,16 @@ export default function MiDia({ user }) {
             })}
           </div>
         </div>
+
+        {unknownSprint && (
+          <div className="mid-error-banner">
+            <WifiOff size={14} style={{ flexShrink: 0 }} />
+            <span>Error de conexión — no se pudo verificar el sprint</span>
+            <button className="mid-retry-btn" onClick={() => reloadSprint()}>
+              <RefreshCw size={12} /> Reintentar
+            </button>
+          </div>
+        )}
 
         {mensajeCierre && (
           <div className="mid-closed-banner">

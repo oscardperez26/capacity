@@ -1,41 +1,42 @@
 /**
- * useSprint.js — v2 REAL API
- * - Llama al backend para obtener el sprint activo
- * - Calcula la semana REAL del calendario (semana en curso según la fecha de hoy)
- * - Si no hay sprint activo o el periodo está cerrado, sprint = null
- * - Los días mostrados siempre son los de la semana actual del calendario
+ * useSprint.js — v3
+ * Fixes:
+ * - Mantiene el último sprint conocido en un ref: errores transitorios no borran el sprint
+ * - Timeout aumentado de 5s a 12s para conexiones lentas a SQL Server
+ * - fetchError distingue "error de red" de "genuinamente sin sprint"
+ * - Retry automático silencioso al volver a la pestaña (visibilitychange)
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { api, ApiError } from '../lib/apiClient'
 
 // ── Construye los días de la semana actual del calendario ─────────────────
 function buildCurrentCalendarWeek() {
-  const hoy   = new Date()
+  const hoy    = new Date()
   const hoyStr = hoy.toISOString().split('T')[0]
-  const dow   = hoy.getDay()                          // 0=Dom, 1=Lun...
-  const diff  = dow === 0 ? -6 : 1 - dow              // cuántos días hasta el lunes
-  const lunes = new Date(hoy)
+  const dow    = hoy.getDay()                     // 0=Dom, 1=Lun...
+  const diff   = dow === 0 ? -6 : 1 - dow         // cuántos días hasta el lunes
+  const lunes  = new Date(hoy)
   lunes.setDate(hoy.getDate() + diff)
 
   const SHORTS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb']
-  const days = []
+  const days   = []
 
-  for (let i = 0; i < 7; i++) {                       // Lun a Dom
+  for (let i = 0; i < 7; i++) {                   // Lun a Dom
     const d = new Date(lunes)
     d.setDate(lunes.getDate() + i)
     const dateStr = d.toISOString().split('T')[0]
     days.push({
-      key:     dateStr,
-      short:   SHORTS[d.getDay()],
-      num:     String(d.getDate()),
-      date:    dateStr,
-      isToday: dateStr === hoyStr,
+      key:       dateStr,
+      short:     SHORTS[d.getDay()],
+      num:       String(d.getDate()),
+      date:      dateStr,
+      isToday:   dateStr === hoyStr,
       isWeekend: d.getDay() === 0 || d.getDay() === 6,
     })
   }
 
-  const lunesStr  = days[0].date
+  const lunesStr   = days[0].date
   const viernesStr = days[4].date
   return {
     id:        `week-${lunesStr}`,
@@ -50,78 +51,123 @@ function buildCurrentCalendarWeek() {
 
 // ── Hook principal ─────────────────────────────────────────────────────────
 export function useSprint() {
-  const [sprint,      setSprint]      = useState(null)      // sprint activo o null
-  const [currentWeek, setCurrentWeek] = useState(null)      // semana actual del calendario
-  const [activeDay,   setActiveDay]   = useState(null)      // día seleccionado (key = fecha)
-  const [loading,     setLoading]     = useState(true)
+  const [sprint,         setSprint]         = useState(null)
+  const [currentWeek,    setCurrentWeek]    = useState(null)
+  const [activeDay,      setActiveDay]      = useState(null)
+  const [loading,        setLoading]        = useState(true)
   const [periodoCerrado, setPeriodoCerrado] = useState(false)
+  const [fetchError,     setFetchError]     = useState(false) // true = error de red/timeout
 
-  const load = useCallback(async () => {
-    setLoading(true)
+  // Último sprint cargado con éxito — no se borra en errores transitorios
+  const lastKnownSprint = useRef(null)
+
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true)
     try {
-      // 1. Semana del calendario SIEMPRE se muestra (independiente del sprint)
       const calWeek = buildCurrentCalendarWeek()
       setCurrentWeek(calWeek)
 
-      // 2. Día de hoy por defecto (primer día laborable de la semana o hoy si está)
-      const hoyStr  = new Date().toISOString().split('T')[0]
-      const todayDay = calWeek.days.find(d => d.isToday)
-      setActiveDay(todayDay?.key ?? calWeek.days[0]?.key ?? null)
+      // Solo resetear el día activo en carga inicial (no en re-fetches silenciosos)
+      if (!silent) {
+        const todayDay = calWeek.days.find(d => d.isToday)
+        setActiveDay(prev => prev ?? todayDay?.key ?? calWeek.days[0]?.key ?? null)
+      }
 
-      // 3. Verifica si hay sprint activo y si la semana actual tiene periodo abierto
       try {
-        const res = await api.get('/sprints/active-week', {
-          signal: AbortSignal.timeout?.(5000),
+        const res  = await api.get('/sprints/active-week', {
+          signal: AbortSignal.timeout?.(12000), // 12s — suficiente para SQL Server frío
         })
         const data = res.data
 
+        // Respuesta exitosa — actualizar estado
+        setFetchError(false)
         if (data?.sprint) {
+          lastKnownSprint.current = data.sprint
           setSprint(data.sprint)
           setPeriodoCerrado(data.periodoCerrado === true)
         } else {
+          // El backend confirmó que no hay sprint → limpiar sin ambigüedad
+          lastKnownSprint.current = null
           setSprint(null)
           setPeriodoCerrado(false)
         }
       } catch (err) {
-        // 429 = rate limit: no disparar fallback, el backend está vivo
-        // 401 = no autorizado: no tiene sentido reintentar
-        if (err instanceof ApiError && (err.status === 429 || err.status === 401)) {
-          setSprint(null)
-          setPeriodoCerrado(true)
+        const isTransient =
+          err.name === 'TimeoutError' ||
+          err.name === 'AbortError'   ||
+          !(err instanceof ApiError)  ||
+          err.status === 0
+
+        // Error transitorio + ya teníamos un sprint → conservar estado anterior
+        if (isTransient && lastKnownSprint.current) {
+          setFetchError(true)
           return
         }
-        // Fallback a /sprints solo si el endpoint no existe (404) o hay error de red (0)
-        const shouldFallback = !(err instanceof ApiError) || err.status === 0 || err.status === 404
+
+        // 401/429 → no tiene sentido reintentar
+        if (err instanceof ApiError && (err.status === 401 || err.status === 429)) {
+          setSprint(null)
+          setPeriodoCerrado(true)
+          setFetchError(false)
+          return
+        }
+
+        // Fallback a /sprints cuando el endpoint no existe o hay error de red sin sprint previo
+        const shouldFallback = isTransient || err.status === 404
         if (shouldFallback) {
           try {
-            const res2 = await api.get('/sprints')
+            const res2    = await api.get('/sprints')
             const sprints = res2.data ?? []
             const activo  = sprints.find(s => s.estado === 'activo')
-            setSprint(activo ? { id: activo.id_sprint, nombre: activo.nombre, inicio: activo.fecha_inicio, fin: activo.fecha_fin } : null)
+            const mapped  = activo
+              ? { id: activo.id_sprint, nombre: activo.nombre, inicio: activo.fecha_inicio, fin: activo.fecha_fin }
+              : null
+            lastKnownSprint.current = mapped
+            setSprint(mapped)
             setPeriodoCerrado(!activo)
+            setFetchError(false)
           } catch {
+            // Ambos endpoints fallaron
+            if (!lastKnownSprint.current) {
+              setSprint(null)
+              setPeriodoCerrado(true)
+            }
+            setFetchError(true)
+          }
+        } else {
+          // Error de servidor (500, etc.)
+          if (!lastKnownSprint.current) {
             setSprint(null)
             setPeriodoCerrado(true)
           }
-        } else {
-          setSprint(null)
-          setPeriodoCerrado(true)
+          setFetchError(true)
         }
       }
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }, [])
 
+  // Carga inicial
   useEffect(() => { load() }, [load])
 
+  // Re-fetch silencioso cuando el usuario vuelve a la pestaña
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') load(true)
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [load])
+
   return {
-    sprint,           // null si no hay sprint activo
-    currentWeek,      // siempre tiene los días de la semana actual del calendario
-    activeDay,        // día seleccionado por defecto (hoy)
+    sprint,
+    currentWeek,
+    activeDay,
     setActiveDay,
-    periodoCerrado,   // true si no hay período abierto para esta semana
+    periodoCerrado,
     loading,
+    fetchError,        // true = fallo de red, false = estado real del sprint
     reload: load,
   }
 }
