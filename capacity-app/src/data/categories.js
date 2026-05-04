@@ -41,7 +41,7 @@ export const CATS = {
     ],
   },
   PROYECTO: {
-    id: 'proyecto', label: 'Proyectos y Mejora', color: '#30693B',
+    id: 'proyecto', label: 'Proyectos, iniciativas y evolutivos', color: '#30693B',
     subs: [
       { id: 'proy_est',  dbId: 9,  label: 'Proyectos estratégicos',          m: 'BUILD', req: true },
       { id: 'proy_cont', dbId: 10, label: 'Proyectos continuidad operativa', m: 'BUILD', req: true },
@@ -71,7 +71,7 @@ export const CATS = {
     ],
   },
   AUSENCIAS: {
-    id: 'ausencias', label: 'Ausencias', color: '#992C26',
+    id: 'ausencias', label: 'Novedades', color: '#992C26',
     subs: [
       { id: 'vacaciones',    dbId: 24, label: 'Vacaciones',    m: 'OFF' },
       { id: 'incapacidades', dbId: 25, label: 'Incapacidades', m: 'OFF' },
