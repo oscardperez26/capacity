@@ -1,0 +1,95 @@
+/* GlobalCapacity — estilos estáticos extraídos de JSX */
+
+/* ── Header ── */
+.gc-page-hdr    { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+.gc-page-title  { font-size: 22px; font-weight: 900; letter-spacing: -.4px; }
+.gc-page-sub    { font-size: 12.5px; color: var(--t-muted); margin-top: 3px; }
+.gc-hdr-acts    { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.gc-refresh-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--c-border); background: var(--c-surface); cursor: pointer; display: flex; align-items: center; justify-content: center; color: #6366F1; }
+.gc-export-btn  { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; border: none; background: #10B981; color: white; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+
+/* ── Grid layouts ── */
+.gc-kpi-grid    { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+.gc-domain-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 14px; }
+.gc-alerts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.gc-charts-2col { display: grid; grid-template-columns: 1fr 1.6fr; gap: 12px; margin-bottom: 14px; }
+.gc-areas-grid  { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-bottom: 16px; }
+
+/* ── Card padding + title ── */
+.gc-card-p20   { padding: 20px; }
+.gc-card-title { font-size: 12.5px; font-weight: 700; margin-bottom: 14px; line-height: 1.4; }
+
+/* ── Domain legend chips (color queda inline — dinámico) ── */
+.gc-domain-legend { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+/* ── ChartTip ── */
+.gc-chart-tip       { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 10px; padding: 10px 14px; font-size: 12px; box-shadow: 0 4px 20px rgba(0,0,0,.15); }
+.gc-chart-tip-title { font-weight: 700; margin-bottom: 6px; }
+.gc-chart-tip-row   { margin-bottom: 2px; } /* color queda inline — dinámico */
+
+/* ── Heatmap section ── */
+.gc-heat-hdr    { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.gc-heat-title  { font-size: 12.5px; font-weight: 700; }
+.gc-heat-legend { display: flex; gap: 8px; }
+.gc-heat-sub    { font-size: 11px; color: var(--t-muted); margin-bottom: 14px; }
+/* Nombre de área en heatmap — background queda inline (hover state) */
+.gc-heat-area-name {
+  font-size: 11.5px; font-weight: 700; padding: 6px 10px;
+  display: flex; align-items: center; cursor: pointer;
+  color: var(--t-secondary); overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; border-radius: 8px; transition: background .12s;
+}
+.gc-heat-tooltip { margin-top: 10px; padding: 8px 14px; border-radius: 9px; display: inline-block; background: var(--c-surface2); border: 1px solid var(--c-border); font-size: 12px; }
+.gc-heat-no-data { text-align: center; padding: 24px 0; color: var(--t-muted); font-size: 13px; }
+
+/* ── Area cards (base — hover vía JS porque capCol es dinámico) ── */
+.gc-area-card      { border-radius: 14px; padding: 14px 16px; cursor: pointer; background: var(--c-surface); border: 1px solid var(--c-border); transition: all .18s; }
+.gc-area-card-hdr  { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.gc-area-card-name { font-size: 12.5px; font-weight: 800; flex: 1; line-height: 1.3; padding-right: 8px; }
+.gc-area-prog-track { height: 5px; border-radius: 99px; background: var(--c-border); overflow: hidden; margin-bottom: 8px; }
+.gc-area-model-bar  { display: flex; gap: 3px; margin-bottom: 8px; height: 5px; border-radius: 99px; overflow: hidden; }
+.gc-area-alerts    { display: flex; gap: 4px; flex-wrap: wrap; }
+.gc-area-card-foot { font-size: 10.5px; color: var(--t-muted); margin-top: 6px; }
+
+/* ── Section title "Detalle por área" ── */
+.gc-areas-section-hdr { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.gc-areas-section-hint { font-size: 11.5px; color: var(--t-muted); font-weight: 400; margin-left: 8px; }
+
+/* ── Tendencia vacío ── */
+.gc-no-trend { text-align: center; padding: 32px 0; color: var(--t-muted); font-size: 13px; }
+
+/* ── FiltrosBar ── */
+.gc-filtros-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.gc-filtros-sel { padding: 7px 12px; border-radius: 9px; border: 1px solid var(--c-border); background: var(--c-surface2); font-size: 12.5px; color: var(--t-primary); font-family: inherit; cursor: pointer; font-weight: 600; }
+/* Sprint select activo — background y border-color quedan inline porque cambian con estado filtro */
+.gc-cal-wrap     { position: relative; }
+.gc-cal-btn      { padding: 7px 14px; border-radius: 9px; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 6px; background: var(--c-surface2); color: var(--t-secondary); border: 1px solid var(--c-border); }
+.gc-cal-btn.active { background: rgba(99,102,241,.12); color: #6366F1; border-color: #6366F1; }
+.gc-cal-badge    { font-size: 10.5px; background: #6366F1; color: white; border-radius: 99px; padding: 1px 7px; }
+.gc-cal-dropdown { position: absolute; top: calc(100% + 8px); right: 0; z-index: 300; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 16px; padding: 18px; box-shadow: 0 16px 48px rgba(0,0,0,.18); min-width: 280px; }
+.gc-cal-tabs     { display: flex; gap: 4px; margin-bottom: 16px; background: rgba(99,102,241,.07); border-radius: 10px; padding: 4px; }
+.gc-cal-tab      { flex: 1; padding: 6px 0; border-radius: 8px; border: none; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s; background: transparent; color: var(--t-muted); box-shadow: none; }
+.gc-cal-tab.active { background: white; color: #6366F1; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+.gc-cal-lbl      { font-size: 10.5px; font-weight: 700; color: var(--t-muted); display: block; margin-bottom: 6px; }
+.gc-cal-inp      { width: 100%; padding: 9px 12px; border-radius: 9px; border: 1px solid var(--c-border); background: var(--c-surface2); font-size: 13px; color: var(--t-primary); box-sizing: border-box; }
+.gc-cal-inp + .gc-cal-lbl { margin-top: 10px; }
+.gc-cal-apply    { width: 100%; margin-top: 12px; padding: 7px 14px; border-radius: 9px; border: none; font-size: 12.5px; font-weight: 700; cursor: pointer; background: #6366F1; color: white; transition: all .15s; }
+.gc-cal-apply:disabled { background: var(--c-border); opacity: .6; cursor: not-allowed; }
+
+/* ── VistaArea ── */
+.gc-va-hdr      { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.gc-va-back-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface); font-size: 13px; font-weight: 700; cursor: pointer; color: var(--t-secondary); }
+.gc-va-title    { font-size: 20px; font-weight: 900; letter-spacing: -.3px; }
+.gc-va-sub      { font-size: 12.5px; color: var(--t-muted); margin-top: 2px; }
+.gc-va-domain-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px; }
+.gc-va-esp-list  { display: flex; flex-direction: column; gap: 8px; }
+.gc-va-esp-row   { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 11px; background: var(--c-surface2); border: 1px solid var(--c-border); }
+.gc-va-esp-info  { flex: 1; min-width: 0; }
+.gc-va-esp-name  { font-size: 13px; font-weight: 700; }
+.gc-va-esp-role  { font-size: 10.5px; color: var(--t-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gc-va-esp-models { display: flex; gap: 6px; }
+.gc-va-esp-model  { text-align: center; min-width: 32px; }
+.gc-va-esp-m-lbl  { font-size: 9px; font-weight: 800; }  /* color queda inline — dinámico */
+.gc-va-esp-m-pct  { font-size: 11px; font-weight: 900; } /* color queda inline — dinámico */
+.gc-va-esp-cap    { text-align: right; flex-shrink: 0; }
+.gc-va-esp-mins   { font-size: 10px; color: var(--t-muted); }

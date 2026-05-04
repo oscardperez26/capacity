@@ -1,0 +1,139 @@
+/* PortafolioTI — estilos estáticos extraídos de JSX */
+
+/* ── Header página ── */
+.pt-page-hdr   { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.pt-page-title { font-size: 22px; font-weight: 900; letter-spacing: -.4px; }
+.pt-page-sub   { font-size: 12.5px; color: var(--t-muted); margin-top: 3px; }
+.pt-hdr-acts   { display: flex; gap: 8px; align-items: center; }
+.pt-clear-btn  { display: flex; align-items: center; gap: 5px; padding: 7px 14px; border-radius: 9px; border: 1px solid rgba(99,102,241,.3); background: rgba(99,102,241,.07); color: #6366F1; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.pt-refresh-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--c-border); background: var(--c-surface); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--c-accent); }
+
+/* ── Grids ── */
+.pt-kpi-grid     { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 18px; }
+.pt-offices-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+
+/* ── Tabla card ── */
+.pt-table-card { padding: 20px; }
+.pt-table-hdr  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.pt-table-lbl  { font-size: 14px; font-weight: 800; }
+.pt-table-lbl-sub { font-weight: 400; color: var(--t-muted); }
+.pt-table-foot { font-size: 11.5px; color: var(--t-muted); margin-top: 8px; text-align: right; }
+
+/* Buscador */
+.pt-search-wrap { position: relative; }
+.pt-search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--t-muted); pointer-events: none; }
+.pt-search-inp  { padding: 7px 12px 7px 30px; border-radius: 9px; width: 200px; border: 1px solid var(--c-border); background: var(--c-surface2); font-size: 12.5px; color: var(--t-primary); font-family: inherit; outline: none; }
+.pt-search-clear { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; border-radius: 50%; border: none; background: var(--c-border); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--t-muted); }
+
+/* Tabla */
+.pt-tbl-wrap  { overflow-x: auto; border-radius: 14px; border: 1px solid var(--c-border); box-shadow: 0 2px 10px rgba(0,0,0,.04); }
+.pt-tbl       { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.pt-th        { padding: 9px 8px 9px 12px; font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--t-muted); background: var(--c-surface2); border-bottom: 2px solid var(--c-border); white-space: nowrap; position: relative; user-select: none; }
+.pt-th-center { text-align: center; }
+.pt-col-resize { position: absolute; right: 0; top: 0; bottom: 0; width: 6px; cursor: col-resize; background: transparent; display: flex; align-items: center; justify-content: center; }
+.pt-col-resize-line { width: 2px; height: 14px; background: var(--c-border); border-radius: 1px; }
+.pt-td        { padding: 10px 12px; border-bottom: 1px solid var(--c-border); }
+.pt-td-center { padding: 10px 12px; text-align: center; }
+.pt-td-mono   { padding: 10px 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; }
+.pt-td-avance { padding: 8px 12px; min-width: 130px; }
+.pt-td-estado { padding: 8px 12px; }
+.pt-tbl-empty { text-align: center; padding: 40px 0; color: var(--t-muted); font-size: 13px; font-style: italic; }
+
+/* Nombre de proyecto en tabla (hover color queda JS — es ofCol dinámico) */
+.pt-proj-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; color: var(--t-primary); transition: color .12s; }
+.pt-proj-desc { font-size: 10.5px; color: var(--t-muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+.pt-clasif    { font-size: 11.5px; color: var(--t-muted); font-style: italic; }
+.pt-resp-name { font-size: 12px; font-weight: 600; color: var(--t-secondary); }
+.pt-resp-none { font-size: 11.5px; color: var(--t-muted); font-style: italic; }
+.pt-acc-wrap  { display: flex; gap: 5px; justify-content: center; }
+
+/* Botón Ver (bg/border/color quedan inline — son ofCol dinámicos) */
+.pt-btn-ver { display: flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all .12s; }
+
+/* InlineAvance */
+.pt-iav-wrap  { display: flex; align-items: center; gap: 8px; min-width: 110px; }
+.pt-iav-track { flex: 1; height: 6px; border-radius: 99px; background: var(--c-border); overflow: hidden; }
+/* número y barra fill quedan con color inline — dinámico (avCol) */
+.pt-iav-num   { font-size: 12px; font-weight: 900; min-width: 34px; text-align: right; font-family: 'JetBrains Mono', monospace; cursor: text; user-select: none; padding: 2px 5px; border-radius: 6px; border: 1px dashed transparent; transition: border-color .15s; }
+.pt-iav-inp   { width: 50px; font-size: 12px; font-weight: 900; text-align: center; padding: 3px 4px; border-radius: 7px; font-family: 'JetBrains Mono', monospace; outline: none; }
+
+/* InlineEstado dropdown */
+.pt-iesta-wrap     { position: relative; display: inline-block; }
+/* botón bg/color/border quedan inline — dinámicos */
+.pt-iesta-btn      { padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.pt-iesta-dropdown { position: absolute; top: calc(100% + 4px); left: 0; z-index: 200; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 11px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.15); min-width: 140px; }
+/* opciones dropdown: bg/color inline porque v.color dinámico */
+.pt-iesta-option { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 14px; border: none; cursor: pointer; font-size: 12px; font-weight: 700; text-align: left; transition: background .1s; }
+.pt-iesta-dot    { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.pt-iesta-check  { margin-left: auto; font-size: 10px; }
+
+/* ── Inputs compartidos del Popup (reemplazan const inp / const lbl) ── */
+.pt-lbl { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--t-muted); display: block; margin-bottom: 5px; }
+.pt-inp { width: 100%; padding: 9px 12px; border-radius: 10px; border: 1.5px solid var(--c-border); background: var(--c-surface2); font-size: 13px; color: var(--t-primary); font-family: inherit; outline: none; box-sizing: border-box; transition: border-color .15s; }
+select.pt-inp { cursor: pointer; }
+textarea.pt-inp { resize: vertical; }
+.pt-ff      { /* field wrapper — solo para span2 */ }
+.pt-ff-span2 { grid-column: span 2; }
+
+/* ── Popup overlay y contenedor ── */
+.pt-popup-overlay { position: fixed; inset: 0; z-index: 500; display: flex; align-items: center; justify-content: center; background: rgba(10,10,20,.6); backdrop-filter: blur(6px); padding: 20px; }
+.pt-popup         { background: var(--c-surface); border-radius: 24px; width: 100%; max-width: 780px; max-height: 92vh; overflow-y: auto; box-shadow: 0 32px 80px rgba(0,0,0,.3); border: 1px solid var(--c-border); }
+
+/* Popup header (gradient queda inline — derivado de ofCol) */
+.pt-popup-hdr   { padding: 22px 28px 18px; border-bottom: 1px solid var(--c-border); display: flex; align-items: flex-start; justify-content: space-between; }
+.pt-popup-hdr-l { flex: 1; min-width: 0; padding-right: 16px; }
+.pt-popup-badges { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.pt-popup-stripe { width: 4px; height: 28px; border-radius: 99px; flex-shrink: 0; } /* background queda inline — ofCol */
+.pt-popup-name  { font-size: 20px; font-weight: 900; letter-spacing: -.3px; }
+.pt-popup-lider { font-size: 12.5px; color: var(--t-muted); margin-top: 4px; }
+.pt-popup-hdr-r { display: flex; gap: 8px; flex-shrink: 0; }
+
+/* Saved badge */
+.pt-popup-saved { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 9px; background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.3); font-size: 12.5px; font-weight: 700; color: #10B981; }
+
+/* Save button (opacity vía :disabled) */
+.pt-popup-save-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 10px; border: none; background: #6366F1; color: white; font-size: 13px; font-weight: 700; cursor: pointer; }
+.pt-popup-save-btn:disabled { opacity: .7; cursor: not-allowed; }
+
+/* Close button */
+.pt-popup-close-btn { width: 34px; height: 34px; border-radius: 9px; border: none; background: var(--c-surface2); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--t-muted); }
+
+/* Popup avance bar */
+.pt-popup-avance { padding: 16px 28px; border-bottom: 1px solid var(--c-border); background: var(--c-surface2); display: flex; align-items: center; gap: 20px; }
+.pt-popup-av-track { flex: 1; height: 10px; border-radius: 99px; background: var(--c-border); overflow: hidden; }
+.pt-popup-av-num-wrap { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.pt-popup-av-pct-sign { font-size: 14px; font-weight: 700; } /* color queda inline — avCol */
+/* input width/fontSize/color/border quedan inline porque avCol es dinámico */
+
+/* Popup form */
+.pt-popup-body      { padding: 22px 28px; }
+.pt-popup-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+
+/* Dirty indicator */
+.pt-dirty-bar  { margin-top: 16px; padding: 10px 14px; border-radius: 10px; background: rgba(99,102,241,.06); border: 1px solid rgba(99,102,241,.2); display: flex; align-items: center; justify-content: space-between; }
+.pt-dirty-msg  { font-size: 12.5px; color: #6366F1; font-weight: 600; }
+.pt-dirty-save { display: flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 9px; border: none; background: #6366F1; color: white; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+
+/* ── Modal genérico (confirm + close) ── */
+.pt-modal-overlay { position: fixed; inset: 0; z-index: 600; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.4); backdrop-filter: blur(4px); }
+.pt-modal         { background: var(--c-surface); border-radius: 20px; width: 100%; margin: 0 16px; box-shadow: 0 24px 60px rgba(0,0,0,.25); border: 1px solid var(--c-border); }
+.pt-modal-lg      { max-width: 420px; padding: 28px 28px 22px; }
+.pt-modal-sm      { max-width: 380px; padding: 26px 26px 20px; }
+.pt-modal-hdr     { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.pt-modal-icon    { width: 44px; height: 44px; border-radius: 14px; background: rgba(99,102,241,.1); display: flex; align-items: center; justify-content: center; }
+.pt-modal-title   { font-size: 17px; font-weight: 900; }
+.pt-modal-sub     { font-size: 12px; color: var(--t-muted); margin-top: 2px; }
+.pt-modal-fields  { padding: 12px 14px; border-radius: 11px; margin-bottom: 18px; background: var(--c-surface2); border: 1px solid var(--c-border); }
+.pt-modal-f-lbl   { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--t-muted); margin-bottom: 8px; }
+.pt-modal-f-tags  { display: flex; flex-wrap: wrap; gap: 6px; }
+.pt-modal-f-tag   { padding: 2px 9px; border-radius: 99px; font-size: 11.5px; font-weight: 700; background: rgba(99,102,241,.1); color: #6366F1; }
+.pt-modal-f-none  { font-size: 12px; color: var(--t-muted); font-style: italic; }
+.pt-modal-acts    { display: flex; gap: 10px; }
+.pt-modal-sm-acts { display: flex; gap: 8px; }
+.pt-modal-cancel  { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid var(--c-border); background: var(--c-surface2); font-size: 13px; font-weight: 700; cursor: pointer; color: var(--t-secondary); }
+.pt-modal-confirm { flex: 2; padding: 10px; border-radius: 12px; border: none; background: #6366F1; color: white; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; transition: opacity .15s; }
+.pt-modal-confirm:disabled { background: var(--c-border); cursor: not-allowed; opacity: .7; }
+.pt-modal-keep    { flex: 1; padding: 10px; border-radius: 11px; border: 1px solid var(--c-border); background: var(--c-surface2); font-size: 13px; font-weight: 700; cursor: pointer; color: var(--t-secondary); }
+.pt-modal-exit    { flex: 1; padding: 10px; border-radius: 11px; border: none; background: #EF4444; color: white; font-size: 13px; font-weight: 700; cursor: pointer; }
+.pt-modal-warn-title { font-size: 16px; font-weight: 900; margin-bottom: 8px; }
+.pt-modal-warn-body  { font-size: 13px; color: var(--t-muted); margin-bottom: 20px; line-height: 1.6; }

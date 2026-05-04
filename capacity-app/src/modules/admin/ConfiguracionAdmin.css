@@ -1,0 +1,129 @@
+/* ConfiguracionAdmin — estilos estáticos extraídos de JSX */
+
+/* ── Badge genérico (bg y color quedan inline — dinámicos) ── */
+.ca-badge { padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+
+/* ── Inputs y labels compartidos entre FormSprint y FormProyecto ── */
+.ca-inp            { width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface2); font-size: 13px; color: var(--t-primary); font-family: inherit; outline: none; box-sizing: border-box; }
+.ca-lbl            { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--t-muted); display: block; margin-bottom: 5px; }
+select.ca-inp      { cursor: pointer; }
+textarea.ca-inp    { resize: none; }
+
+/* ── Encabezado de página ── */
+.ca-page-hdr       { margin-bottom: 22px; }
+.ca-page-title     { font-size: 22px; font-weight: 900; letter-spacing: -.4px; }
+.ca-page-sub       { font-size: 13px; color: var(--t-muted); margin-top: 3px; }
+
+/* ── Tabs strip ── */
+.ca-tabs-strip     { display: flex; gap: 4px; margin-bottom: 24px; background: rgba(99,102,241,.06); border-radius: 14px; padding: 5px; width: fit-content; }
+.ca-tab-btn        { display: flex; align-items: center; gap: 8px; padding: 9px 22px; border-radius: 11px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; transition: all .15s; background: transparent; color: var(--t-muted); box-shadow: none; }
+.ca-tab-btn.active { background: white; color: #6366F1; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+
+/* ── Header de sub-tab ── */
+.ca-tab-hdr        { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.ca-tab-title      { font-size: 17px; font-weight: 800; }
+.ca-tab-sub        { font-size: 12.5px; color: var(--t-muted); margin-top: 3px; }
+.ca-tab-actions    { display: flex; gap: 8px; }
+
+/* ── Botones de acción generales ── */
+.ca-refresh-btn    { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--c-border); background: var(--c-surface); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--c-accent); }
+.ca-btn-new        { display: flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 11px; border: none; background: #6366F1; color: white; font-size: 13px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 16px rgba(99,102,241,.35); }
+.ca-btn-cancel     { padding: 8px 18px; border-radius: 10px; border: 1px solid var(--c-border); background: var(--c-surface2); font-size: 13px; font-weight: 700; cursor: pointer; color: var(--t-secondary); }
+.ca-btn-submit     { padding: 8px 22px; border-radius: 10px; border: none; background: #6366F1; color: white; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: opacity .15s; }
+.ca-btn-submit:disabled { background: var(--c-border); cursor: not-allowed; opacity: .7; }
+
+/* ── Estado vacío ── */
+.ca-empty          { text-align: center; padding: 40px 0; color: var(--t-muted); }
+.ca-empty-icon     { opacity: .2; margin: 0 auto 12px; display: block; }
+.ca-empty-title    { font-size: 14px; font-weight: 600; }
+.ca-empty-hint     { font-size: 13px; margin-top: 4px; }
+
+/* ── Mensajes inline (hint verde / error rojo) ── */
+.ca-hint           { padding: 9px 14px; border-radius: 9px; margin-bottom: 12px; background: rgba(99,102,241,.06); border: 1px solid rgba(99,102,241,.2); font-size: 12.5px; color: #6366F1; font-weight: 600; display: flex; gap: 7px; align-items: center; }
+.ca-err            { padding: 9px 14px; border-radius: 9px; margin-bottom: 12px; background: rgba(239,68,68,.07); border: 1px solid rgba(239,68,68,.2); font-size: 12.5px; color: #EF4444; font-weight: 600; display: flex; gap: 7px; align-items: center; }
+
+/* ── FormSprint ── */
+.ca-form-wrap      { padding: 20px; border-radius: 16px; background: var(--c-surface); border: 2px solid rgba(99,102,241,.3); margin-bottom: 16px; }
+.ca-form-title     { font-size: 15px; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.ca-form-grid-3    { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.ca-form-footer    { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ── TarjetaSprint ── */
+.ca-sp-card        { border-radius: 16px; border: 1px solid var(--c-border); overflow: hidden; background: var(--c-surface); }
+.ca-sp-card.activo { border-color: rgba(16,185,129,.3); box-shadow: 0 4px 16px rgba(16,185,129,.1); }
+.ca-sp-hdr         { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: var(--c-surface); }
+.ca-sp-hdr.activo  { background: rgba(16,185,129,.04); }
+.ca-sp-clickable   { flex: 1; cursor: pointer; }
+.ca-sp-title-row   { display: flex; align-items: center; gap: 10px; }
+.ca-sp-name        { font-size: 15px; font-weight: 900; }
+.ca-sp-periods     { font-size: 11px; color: var(--t-muted); }
+.ca-sp-dates       { font-size: 11.5px; color: var(--t-muted); margin-top: 4px; }
+.ca-sp-actions     { display: flex; gap: 6px; flex-shrink: 0; }
+.ca-sp-btn-edit    { display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--c-border); background: var(--c-surface2); font-size: 12px; font-weight: 600; cursor: pointer; color: var(--t-secondary); }
+.ca-sp-btn-act     { display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px; border: none; background: #10B981; color: white; font-size: 12px; font-weight: 700; cursor: pointer; }
+.ca-sp-btn-act:disabled { opacity: .6; cursor: not-allowed; }
+.ca-sp-btn-close   { display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(239,68,68,.3); background: rgba(239,68,68,.07); color: #EF4444; font-size: 12px; font-weight: 700; cursor: pointer; }
+.ca-sp-btn-close:disabled { opacity: .6; cursor: not-allowed; }
+.ca-sp-toggle      { width: 28px; height: 28px; border-radius: 7px; border: none; background: var(--c-surface2); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ca-sp-body        { border-top: 1px solid var(--c-border); padding: 12px 20px; background: var(--c-surface2); }
+.ca-sp-body-lbl    { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--t-muted); margin-bottom: 10px; }
+.ca-sp-weeks       { display: flex; gap: 8px; flex-wrap: wrap; }
+.ca-sp-week-chip   { padding: 6px 12px; border-radius: 9px; background: var(--c-surface); border: 1px solid var(--c-border); font-size: 12px; font-weight: 700; color: var(--t-secondary); }
+.ca-sp-no-periods  { font-size: 12.5px; color: var(--t-muted); font-style: italic; }
+
+/* ── Banner sprint activo ── */
+.ca-active-banner  { padding: 13px 18px; border-radius: 14px; margin-bottom: 14px; background: rgba(16,185,129,.06); border: 1px solid rgba(16,185,129,.25); display: flex; align-items: center; gap: 12px; }
+.ca-pulse-dot      { width: 10px; height: 10px; border-radius: 50%; background: #10B981; box-shadow: 0 0 0 4px rgba(16,185,129,.2); flex-shrink: 0; }
+.ca-active-name    { font-size: 13.5px; font-weight: 800; color: #10B981; }
+.ca-active-dates   { font-size: 11.5px; color: var(--t-muted); margin-top: 2px; }
+
+/* ── Lista vertical de sprints ── */
+.ca-list-col       { display: flex; flex-direction: column; gap: 10px; }
+
+/* ── FormProyecto ── */
+.ca-fp-wrap        { background: var(--c-surface); border-radius: 16px; border: 1.5px solid rgba(99,102,241,.3); overflow: hidden; margin-bottom: 16px; }
+.ca-fp-hdr         { padding: 18px 22px 14px; border-bottom: 1px solid var(--c-border); background: rgba(99,102,241,.04); display: flex; justify-content: space-between; align-items: center; }
+.ca-fp-hdr-left    { display: flex; align-items: center; gap: 10px; }
+.ca-fp-icon        { width: 38px; height: 38px; border-radius: 11px; background: rgba(99,102,241,.12); display: flex; align-items: center; justify-content: center; }
+.ca-fp-title       { font-size: 16px; font-weight: 900; }
+.ca-fp-sub         { font-size: 11.5px; color: var(--t-muted); margin-top: 1px; }
+.ca-fp-close       { width: 30px; height: 30px; border-radius: 8px; border: none; background: var(--c-surface2); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--t-muted); }
+.ca-fp-body        { padding: 20px 22px; }
+.ca-fp-grid        { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.ca-fp-span2       { grid-column: span 2; }
+.ca-fp-range-row   { display: flex; align-items: center; gap: 10px; }
+.ca-fp-range       { flex: 1; accent-color: #6366F1; }
+.ca-fp-pct         { font-size: 14px; font-weight: 800; color: #6366F1; font-family: 'JetBrains Mono', monospace; min-width: 38px; }
+.ca-fp-footer      { padding: 14px 22px; background: var(--c-surface2); border-top: 1px solid var(--c-border); display: flex; gap: 10px; justify-content: flex-end; }
+.ca-fp-btn-cancel  { padding: 9px 20px; border-radius: 11px; border: 1px solid var(--c-border); background: transparent; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--t-secondary); }
+.ca-fp-btn-submit  { padding: 9px 24px; border-radius: 11px; border: none; background: #6366F1; color: white; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 7px; transition: opacity .15s; }
+.ca-fp-btn-submit:disabled { background: var(--c-border); cursor: not-allowed; opacity: .7; }
+
+/* ── TabProyectos ── */
+.ca-btn-new-toggle        { display: flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 11px; font-size: 13px; font-weight: 800; cursor: pointer; border: none; background: #6366F1; color: white; box-shadow: 0 4px 16px rgba(99,102,241,.35); }
+.ca-btn-new-toggle.active { background: var(--c-surface2); color: var(--t-secondary); border: 1px solid var(--c-border); box-shadow: none; }
+.ca-oficinas-grid  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.ca-of-card        { padding: 14px 16px; border-radius: 13px; }
+.ca-of-name        { font-size: 14px; font-weight: 800; margin-bottom: 8px; }
+.ca-of-stats       { display: flex; gap: 8px; flex-wrap: wrap; }
+.ca-of-chip        { font-size: 10.5px; padding: 2px 8px; border-radius: 99px; font-weight: 700; }
+.ca-proj-list      { display: flex; flex-direction: column; gap: 6px; }
+.ca-proj-row       { display: flex; align-items: center; border-radius: 12px; background: var(--c-surface); border: 1px solid var(--c-border); overflow: hidden; transition: box-shadow .15s; }
+.ca-proj-bar       { width: 5px; align-self: stretch; flex-shrink: 0; }
+.ca-proj-body      { flex: 1; display: flex; align-items: center; gap: 14px; padding: 12px 16px; flex-wrap: wrap; }
+.ca-proj-name-col  { flex: 1 1 200px; min-width: 0; }
+.ca-proj-name      { font-size: 13.5px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ca-proj-badges    { display: flex; align-items: center; gap: 7px; margin-top: 4px; }
+.ca-proj-of-chip   { font-size: 10.5px; padding: 1px 8px; border-radius: 99px; font-weight: 700; }
+.ca-proj-clasi     { font-size: 10px; color: var(--t-muted); }
+.ca-proj-dates-col { text-align: center; flex-shrink: 0; }
+.ca-col-lbl        { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--t-muted); margin-bottom: 2px; }
+.ca-proj-dates-val { font-size: 11.5px; font-weight: 700; color: var(--t-secondary); font-family: 'JetBrains Mono', monospace; }
+.ca-proj-prog-col  { min-width: 100px; flex-shrink: 0; }
+.ca-proj-prog-hdr  { display: flex; justify-content: space-between; margin-bottom: 3px; }
+.ca-proj-prog-pct  { font-size: 12px; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
+.ca-proj-prog-track{ height: 6px; border-radius: 99px; background: var(--c-border); overflow: hidden; }
+.ca-proj-prog-fill { height: 100%; border-radius: 99px; transition: width .6s; }
+.ca-proj-resp-col  { flex-shrink: 0; min-width: 140px; }
+.ca-proj-resp-val  { font-size: 12px; font-weight: 600; color: var(--t-secondary); }
+.ca-proj-sin-asig  { font-style: italic; color: var(--t-muted); }

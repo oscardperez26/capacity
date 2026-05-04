@@ -1,3 +1,4 @@
+import './Configuracion.css'
 import { useState } from 'react'
 import { Plus, Calendar } from 'lucide-react'
 import { AREAS_DATA } from '../../data/mockData'
@@ -42,21 +43,21 @@ export default function Configuracion() {
       </div>
 
       {/* Summary strip */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginBottom: 16 }}>
+      <div className="cfg-stats">
         {[
           { l: 'Áreas activas',       v: totalAreas,  c: 'var(--c-accent)' },
           { l: 'Especialistas',       v: totalEsps,   c: 'var(--brand-green)' },
           { l: 'Sprints completados', v: sprints.filter(s => s.status === 'cerrado').length, c: 'var(--t-secondary)' },
         ].map((k, i) => (
-          <div key={i} style={{ padding: '11px 16px', background: 'var(--c-surface)', borderRadius: 12, border: '1px solid var(--c-border)', boxShadow: 'var(--s-xs)' }}>
-            <div style={{ fontSize: 8.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: .5, color: 'var(--t-muted)' }}>{k.l}</div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: k.c, marginTop: 4 }}>{k.v}</div>
+          <div key={i} className="cfg-stat-card">
+            <div className="cfg-stat-lbl">{k.l}</div>
+            <div className="cfg-stat-val" style={{ color: k.c }}>{k.v}</div>
           </div>
         ))}
       </div>
 
       <div className="card" style={{ padding: 20 }}>
-        <div style={{ marginBottom: 12, padding: '9px 14px', background: 'var(--c-accent3)', borderRadius: 8, border: '1px solid rgba(51,40,154,0.18)', fontSize: 10.5, fontWeight: 600, color: 'var(--c-accent)' }}>
+        <div className="cfg-notice">
           ℹ️ Los sprints son globales y aplican a las {totalAreas} áreas de TI. No pueden editarse una vez cerrados.
         </div>
 
@@ -66,7 +67,7 @@ export default function Configuracion() {
               <div className="sprint-row-name">{s.name}</div>
               <div className="sprint-row-dates">{s.start} — {s.end} · 2025 · {s.areas}</div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+            <div className="cfg-row-acts">
               <span className={`badge ${s.status === 'activo' ? 'badge-accent' : 'badge-green'}`}>{s.status}</span>
               {s.status === 'activo' && (
                 <Button className="btn-ghost btn-sm" onClick={() => closeSprint(s.id)}>
@@ -85,7 +86,7 @@ export default function Configuracion() {
             <label className="form-lbl">Nombre</label>
             <input className="form-inp" placeholder="Sprint 6" value={newName} onChange={e => setNewName(e.target.value)} />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="cfg-2col">
             <div className="form-grp">
               <label className="form-lbl">Inicio</label>
               <input className="form-inp" type="date" value={newStart} onChange={e => setNewStart(e.target.value)} />

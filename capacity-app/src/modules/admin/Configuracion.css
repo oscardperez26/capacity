@@ -1,0 +1,16 @@
+/* Configuracion — estilos estáticos extraídos de JSX */
+
+/* Summary strip */
+.cfg-stats      { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+.cfg-stat-card  { padding: 11px 16px; background: var(--c-surface); border-radius: 12px; border: 1px solid var(--c-border); box-shadow: var(--s-xs); }
+.cfg-stat-lbl   { font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--t-muted); }
+.cfg-stat-val   { font-size: 22px; font-weight: 900; margin-top: 4px; } /* color queda inline — dinámico por tarjeta */
+
+/* Aviso informativo */
+.cfg-notice     { margin-bottom: 12px; padding: 9px 14px; background: var(--c-accent3); border-radius: 8px; border: 1px solid rgba(51,40,154,0.18); font-size: 10.5px; font-weight: 600; color: var(--c-accent); }
+
+/* Sprint row — acciones */
+.cfg-row-acts   { display: flex; align-items: center; gap: 9px; }
+
+/* Modal — grid de dos columnas */
+.cfg-2col       { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
